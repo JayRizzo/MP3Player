@@ -71,6 +71,8 @@ class App(customtkinter.CTk):
         self.stopped = TRUE
         self.muted = FALSE
         self.current_time = 0
+        self.length = 0
+        self.max_time = 0
         self.mins = 0
         self.secs = 0
         self.volume = mixer.music.get_volume()
@@ -153,27 +155,29 @@ class App(customtkinter.CTk):
         self.frame_center.rowconfigure(1)
         self.frame_center.columnconfigure(0)
 
-        self.label_info_1 = customtkinter.CTkLabel(master=self.frame_center, text="Lyrics:", height=self.screen_y_half, width=self.screen_x_half, corner_radius=6, fg_color=("white", "gray38"), justify=tkinter.LEFT)
-        self.label_info_1.grid(row=0, column=0, rowspan=1, columnspan=15, sticky="new", padx=10, pady=(10, 0))
+        self.label_info_1 = customtkinter.CTkLabel(master=self.frame_center, text=f"Time: {self.length}", height=self.screen_y_half, corner_radius=6, fg_color=("white", "gray38"), justify=tkinter.LEFT)
+        self.label_info_1.grid(row=0, column=0, rowspan=1, columnspan=6, sticky="new", padx=10, pady=(10, 0))
 
         self.progressbar = customtkinter.CTkProgressBar(master=self.frame_center, orient="horizontal", width=100)
-        self.progressbar.grid(row=1, column=0, rowspan=1, columnspan=15, sticky="new", padx=10, pady=10)
+        self.progressbar.grid(row=1, column=0, rowspan=1, columnspan=6, sticky="new", padx=10, pady=10)
 
         # ============ Center-Bottom Buttons ============
-        self.button_0 = customtkinter.CTkButton(master=self.frame_center, text_font=("Consolas", 45), text=f"{PAUSEBUTN}", corner_radius=60, command=self.pause_music).grid( sticky='n', row=2, column=0, rowspan=1, columnspan=1, padx=5, pady=5)
+        self.button_0 = customtkinter.CTkButton(master=self.frame_center, text_font=("Consolas", 45), text=f"{PAUSEBUTN}", corner_radius=60, command=self.pause_music)
+        self.button_0.grid( sticky='n', row=2, column=0, rowspan=1, columnspan=1, padx=5, pady=5)
         self.button_1 = customtkinter.CTkButton(master=self.frame_center, text_font=("Consolas", 45), text=f"{BACKARROW}", corner_radius=60, command=self.button_event).grid( sticky='n', row=2, column=1, rowspan=1, columnspan=1, padx=5, pady=5)
         self.button_2 = customtkinter.CTkButton(master=self.frame_center, text_font=("Consolas", 45), text=f"{PLAYBUTTN}", corner_radius=60, command=self.play_music).grid(   sticky='n', row=2, column=2, rowspan=1, columnspan=1, padx=5, pady=5)
         self.button_3 = customtkinter.CTkButton(master=self.frame_center, text_font=("Consolas", 45), text=f"{FORWARROW}", corner_radius=60, command=self.skip_music).grid( sticky='n', row=2, column=3, rowspan=1, columnspan=1, padx=5, pady=5)
         self.button_4 = customtkinter.CTkButton(master=self.frame_center, text_font=("Consolas", 45), text=f"{STOPBUTTN}", corner_radius=60, command=self.stop_music).grid( sticky='n', row=2, column=4, rowspan=1, columnspan=1, padx=5, pady=5)
         self.button_5 = customtkinter.CTkButton(master=self.frame_center, text_font=("Consolas", 45), text=f"{SHFLLBUTN}", corner_radius=60, command=self.button_event).grid( sticky='n', row=3, column=1, rowspan=1, columnspan=1, padx=5, pady=5)
         self.button_6 = customtkinter.CTkButton(master=self.frame_center, text_font=("Consolas", 45), text=f"{MUTEBUTTN}", corner_radius=60, command=self.mute_music,bg='systemTransparent').grid( sticky='n', row=3, column=2, rowspan=1, columnspan=1, padx=5, pady=5)
-        self.switch_3 = customtkinter.CTkSwitch(master=self.frame_center, text_font=("Consolas", 25), text="Repeat", corner_radius=60, command=self.repeat_music).grid(sticky='ns', row=3, column=3, pady=15, padx=20)
-        # self.button_7 = customtkinter.CTkButton(master=self.frame_center, text_font=("Consolas", 45), text=f"{REPEATBTN}", command=self.repeat_music).grid( row=3, column=3, rowspan=1, columnspan=1, padx=5, pady=5)
+        # self.switch_3 = customtkinter.CTkSwitch(master=self.frame_center, text_font=("Consolas", 25), text=f"{REPEATBTN} Repeat", corner_radius=60, command=self.repeat_music).grid(sticky='ns', row=3, column=3, pady=15, padx=20)
+        self.button_7 = customtkinter.CTkButton(master=self.frame_center, text_font=("Consolas", 45), text=f"{REPEATBTN}", corner_radius=60, command=self.repeat_music).grid( row=3, column=3, rowspan=1, columnspan=1, padx=5, pady=5)
 
         # ============ Center-Right Volume Scroll ============
-        self.slider_1 = customtkinter.CTkSlider(master=self.frame_center, orient="vertical", command=self.set_vol).grid(          row=1, column=5, rowspan=2, columnspan=2, padx=(10, 10), pady=(40, 10), sticky="n")
-        self.slider_1_label = customtkinter.CTkLabel(master=self.frame_center, text=self.slider_1, width=30, height=25).grid(row=3, column=5, rowspan=1, columnspan=2, padx=( 0,  0), pady=( 0, 0), sticky="n")
-
+        self.volume_slider = customtkinter.CTkSlider(master=self.frame_center, orient="vertical", command=lambda v: self.volume_label.set_text(str(round(round(v, 3)*100, 1))))
+        self.volume_slider.grid(          row=1, column=5, rowspan=2, columnspan=1, padx=(10, 10), pady=(40, 10), sticky="n")
+        self.volume_label = customtkinter.CTkLabel(master=self.frame_center, text=50, width=30, height=25)
+        self.volume_label.grid(row=3, column=5, rowspan=1, columnspan=1, padx=( 0,  0), pady=( 0, 0), sticky="n")
 
         # ============ Populate Third Frame (RIGHT) ============
         self.frame_right.rowconfigure((0, 1, 2, 3), weight=1)
@@ -230,32 +234,38 @@ class App(customtkinter.CTk):
         self.progressbar.set(0)
 
     # ============ BEGIN Define Funcitons BEGIN ============
-
     def button_event(self):
         print("Button pressed")
+        return
 
     def window_info(self):
         screen_dimensions = f"{self.winfo_height()}x{self.winfo_width()}"
         print(f"Screen Dimensions: {screen_dimensions}")
+        return
 
     def change_appearance_mode(self, new_appearance_mode):
         customtkinter.set_appearance_mode(new_appearance_mode)
+        return
 
     def change_theme(self, new_theme):
         customtkinter.set_default_color_theme(new_theme)
+        return
 
     def change_scaling(self, new_scaling: str):
         new_scaling_float = int(new_scaling.replace("%", "")) / 100
         customtkinter.set_spacing_scaling(new_scaling_float)
         customtkinter.set_widget_scaling(new_scaling_float)
+        return
 
     def on_closing(self, event=0):
         self.destroy()
+        return
 
     def update_clock(self):
         now = time.strftime("%H:%M:%S")
         self.label.configure(text=now)
         self.after(1000, self.update_clock)
+        return
 
     def browse_file(self):
         self.filename_path = askopenfilename(filetypes=[("MP3", "*.mp3"),
@@ -269,6 +279,7 @@ class App(customtkinter.CTk):
         print(f"Selected Path Added to Queue: {self.filename_path}")
         self.playlistbox.select_set(0)  #  This only sets focus on the first item.
         # self.playlistbox.selection_set( first = 0 )  #  This only sets focus on the first item.
+        return
 
     def add_to_playlist(self, filename):
         self.filename = basename(filename)
@@ -284,6 +295,7 @@ class App(customtkinter.CTk):
         self.index += 1
         print(self.playlistbox)
         print(self.playlist)
+        return
 
     def get_filenames():
         path = "/Users/jkirchoff/Desktop/"
@@ -311,6 +323,7 @@ class App(customtkinter.CTk):
                 self.timeformat = '{:02d}:{:02d}'.format(self.mins, self.secs)
                 time.sleep(1)
                 self.current_time += 1
+        return converted_time
 
     def show_details(self, play_song):
         self.file_data = splitext(play_song)
@@ -327,6 +340,7 @@ class App(customtkinter.CTk):
         self.timeformat = '{:02d}:{:02d}'.format(self.mins, self.secs)
         self.t1 = threading.Thread(target=self.start_count, args=(self.total_length,))
         self.t1.start()
+        return
 
     def onSelect(self, val):
         self.sender = self.val.widget
@@ -386,22 +400,28 @@ class App(customtkinter.CTk):
     def set_vol(self, val):
         self.volume = float(val)
         mixer.music.set_volume(self.volume)
-        print(f"volume: {self.volume}")
+        self.get_vol()
+        return self.volume
+
+    def get_vol(self):
+        a = self.volume * 100
+        print(f"volume: {round(a, 2)}")
+        return round(a, 2)
 
     def mute_music(self):
         global muted
         if self.muted:  # Unmute the music
-            mixer.music.set_volume(0.7)
+            mixer.music.set_volume(0.75)
             self.muted = FALSE
-            self.button_4 = customtkinter.CTkButton(master=self.frame_center, text_font=("", 45), text=f"{SPKRBUTTN}", command=self.mute_music).grid(   row=3, column=2, rowspan=1, columnspan=1, padx=5, pady=0)
+            self.button_4 = customtkinter.CTkButton(master=self.frame_center, text_font=("", 45), text=f"{SPKRBUTTN}", corner_radius=60, command=self.mute_music).grid(   row=3, column=2, rowspan=1, columnspan=1, padx=5, pady=0)
         else:  # mute the music
             mixer.music.set_volume(0)
             self.muted = TRUE
-            self.button_4 = customtkinter.CTkButton(master=self.frame_center, text_font=("", 45), text=f"{MUTEBUTTN}", command=self.mute_music).grid(   row=3, column=2, rowspan=1, columnspan=1, padx=5, pady=0)
+            self.button_4 = customtkinter.CTkButton(master=self.frame_center, text_font=("", 45), text=f"{MUTEBUTTN}", corner_radius=60, command=self.mute_music).grid(   row=3, column=2, rowspan=1, columnspan=1, padx=5, pady=0)
 
     def shuffle_music(self):
         self.playlistbox = shuffle(self.playlistbox)
-        self.button_5 = customtkinter.CTkButton(master=self.frame_center, text_font=("Consolas", 45), text=f"{SHFLLBUTN}", command=self.button_event).grid( row=3, column=1, rowspan=1, columnspan=1, padx=5, pady=5)
+        self.button_5 = customtkinter.CTkButton(master=self.frame_center, text_font=("Consolas", 45), text=f"{SHFLLBUTN}", corner_radius=60, command=self.button_event).grid( row=3, column=1, rowspan=1, columnspan=1, padx=5, pady=5)
 
     def del_song(self):
         self.selected_song = self.playlistbox.curselection()
