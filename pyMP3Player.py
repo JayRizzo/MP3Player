@@ -564,11 +564,8 @@ class App(customtkinter.CTk):
         m, s = divmod(s, 60)
         h, m = divmod(m, 60)
         d, h = divmod(h, 24)
-        timelapsed = "{:01d}:{:02d}:{:02d}:{:02d}".format(int(d),
-                                                          int(h),
-                                                          int(m),
-                                                          int(s))
-        return timelapsed
+        TIMELAPSED = f"{int(d):01d}:{int(h),:02d}:{int(m),:02d}:{int(s),:02d}"
+        return TIMELAPSED
 
     def duration_from_milliseconds(self, ms):
         """Module to convert milliseconds to Seconds in a time like format."""
@@ -577,13 +574,8 @@ class App(customtkinter.CTk):
         m, s = divmod(s, 60)
         h, m = divmod(m, 60)
         d, h = divmod(h, 24)
-        timelapsed = f"{int(d):01d}:{int(h),:02d}:{int(m),:02d}:{int(s),:02d}:{int(ms):02d}"
-        # timelapsed = "{:01d}:{:02d}:{:02d}:{:02d}:{:02d}".format(int(d),
-        #                                                          int(h),
-        #                                                          int(m),
-        #                                                          int(s),
-        #                                                          int(ms))
-        return timelapsed
+        TIMELAPSED = f"{int(d):01d}:{int(h),:02d}:{int(m),:02d}:{int(s),:02d}:{int(ms):02d}"
+        return TIMELAPSED
     # ========================================================================
     # ========================== Database Functions ==========================
     # ========================================================================
