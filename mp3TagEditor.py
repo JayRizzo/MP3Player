@@ -1,365 +1,445 @@
-# TODO: Share here when done https://stackoverflow.com/q/37414448/1896134  &   https://stackoverflow.com/q/18248200/1896134
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# =============================================================================
+# Created Syst: macOS Monterey 12.5 (21G72) Kernel: Darwin 21.6.0
+# Created Plat: Python 3.10.5 ('v3.10.5:f377153967', 'Jun  6 2022 12:36:10')
+# Created By  : jkirchoff
+# Created Date: Tue Sep 26 19:10:53 2022 CDT
+# Last ModDate: Tue Sep 27 17:50:01 2022 CDT
+# =============================================================================
+import functools  # reduce - Required for ID3 Header Checks
+import mutagen
+from mutagen.mp3 import MP3
+from mutagen.mp3 import MPEGInfo
+from mutagen.mp4 import MP4
+from mutagen.id3 import ID3
+from mutagen.id3 import ID3Tags
+from mutagen.id3 import ID3NoHeaderError
+from mutagen.id3 import Encoding  # Required for SYLT SYNC'D Lyrics
+from mutagen.id3 import AENC  # AENC [ Supported Version: 4.20 ] # id3.AENC(owner='', preview_start=0, preview_length=0, data='')
+from mutagen.id3 import APIC  # APIC [ Supported Version: 4.20 ] # Attached (or linked) Picture. id3.add(APIC(encoding=3, mime=u'image/jpeg', type=3, desc=u'Front Cover', data=self.get_cover(info)))  Example2# id3.add(APIC(encoding=3, mime=u'image/jpg', type=3, desc=u'Cover', data=self.get_cover(info['album_pic_url'])))
+from mutagen.id3 import ASPI  # ASPI [ Supported Version: 2.00 ] # Audio seek point index. Attributes: S, L, N, b, and Fi. For the meaning of these, see the ID3v2.4 specification. Fi is a list of integers.
+from mutagen.id3 import CHAP  # CHAP [ Supported Version: 2.00 ] # Chapter propertyHashKey An internal key used to ensure frame uniqueness in a tag
+from mutagen.id3 import COMM  # COMM [ Supported Version: 4.11 ] # Comments
+from mutagen.id3 import COMR  # COMR [ Supported Version: 4.25 ] # Commercial frame
+from mutagen.id3 import CTOC  # CTOC [ Supported Version: 2.00 ] # Table of contents propertyHashKey An internal key used to ensure frame uniqueness in a tag
+from mutagen.id3 import ENCR  # ENCR [ Supported Version: 4.26 ] # Encryption method registration
+from mutagen.id3 import EQU2  # EQU2 [ Supported Version: 2.00 ] # Equalisation (2).  Attributes: method - interpolation method (0 = band, 1 = linear) desc - identifying description adjustments - list of (frequency, vol_adjustment) pairs
+from mutagen.id3 import ETCO  # ETCO [ Supported Version: 4.06 ] # Event timing codes
+from mutagen.id3 import GEOB  # GEOB [ Supported Version: 4.16 ] # General encapsulated object
+from mutagen.id3 import GRID  # GRID [ Supported Version: 4.27 ] # Group identification registration
+from mutagen.id3 import IPLS  # IPLS [ Supported Version: 4.04 ] # Involved people list
+from mutagen.id3 import LINK  # LINK [ Supported Version: 4.21 ] # Linked information
+from mutagen.id3 import MCDI  # MCDI [ Supported Version: 4.05 ] # Music CD identifier
+from mutagen.id3 import MLLT  # MLLT [ Supported Version: 4.07 ] # MPEG location lookup table
+from mutagen.id3 import MVIN  # MVIN [ Supported Version: 2.00 ] # iTunes Movement Number/Count
+from mutagen.id3 import MVNM  # MVNM [ Supported Version: 2.00 ] # iTunes Movement Name
+from mutagen.id3 import OWNE  # OWNE [ Supported Version: 4.24 ] # Ownership frame
+from mutagen.id3 import PCNT  # PCNT [ Supported Version: 4.17 ] # Play counter
+from mutagen.id3 import PCST  # PCST [ Supported Version: 2.00 ] # iTunes Podcast Flag
+from mutagen.id3 import POPM  # POPM [ Supported Version: 4.18 ] # Popularimeter
+from mutagen.id3 import POSS  # POSS [ Supported Version: 4.22 ] # Position synchronization frame
+from mutagen.id3 import PRIV  # PRIV [ Supported Version: 4.28 ] # Private frame
+from mutagen.id3 import RBUF  # RBUF [ Supported Version: 4.19 ] # Recommended buffer size
+from mutagen.id3 import RVA2  # RVA2 [ Supported Version: 2.00 ] # Relative volume adjustment (2)
+from mutagen.id3 import RVAD  # RVAD [ Supported Version: 4.12 ] # Relative volume adjustment
+from mutagen.id3 import RVRB  # RVRB [ Supported Version: 4.14 ] # Reverb
+from mutagen.id3 import SEEK  # SEEK [ Supported Version: 2.00 ] # Seek frame.
+from mutagen.id3 import SIGN  # SIGN [ Supported Version: 2.00 ] # Signature frame.
+from mutagen.id3 import SYLT  # SYLT [ Supported Version: 4.10 ] # Synchronized lyric/text
+from mutagen.id3 import SYTC  # SYTC [ Supported Version: 4.08 ] # Synchronized tempo codes
+from mutagen.id3 import TALB  # TALB [ Supported Version: 2.00 ] # Album/Movie/Show title
+from mutagen.id3 import TBPM  # TBPM [ Supported Version: 2.00 ] # BPM (beats per minute)
+from mutagen.id3 import TCAT  # TCAT [ Supported Version: 2.00 ] # iTunes Podcast Category
+from mutagen.id3 import TCMP  # TCMP [ Supported Version: 2.00 ] # iTunes Compilation Flag
+from mutagen.id3 import TCOM  # TCOM [ Supported Version: 2.00 ] # TCOM Composer
+from mutagen.id3 import TCON  # TCON [ Supported Version: 2.00 ] # TCON Content type
+from mutagen.id3 import TCOP  # TCOP [ Supported Version: 2.00 ] # TCOP Copyright message
+from mutagen.id3 import TDAT  # TDAT [ Supported Version: 2.00 ] # TDAT Date
+from mutagen.id3 import TDEN  # TDEN [ Supported Version: 2.00 ] # Encoding Time
+from mutagen.id3 import TDES  # TDES [ Supported Version: 2.00 ] # iTunes Podcast Description
+from mutagen.id3 import TDLY  # TDLY [ Supported Version: 2.00 ] # TDLY Playlist delay
+from mutagen.id3 import TDOR  # TDOR [ Supported Version: 2.00 ] # Original Release Time
+from mutagen.id3 import TDRC  # TDRC [ Supported Version: 2.00 ] # Recording Time
+from mutagen.id3 import TDRL  # TDRL [ Supported Version: 2.00 ] # Release Time
+from mutagen.id3 import TDTG  # TDTG [ Supported Version: 2.00 ] # Tagging Time
+from mutagen.id3 import TENC  # TENC [ Supported Version: 2.00 ] # TENC Encoded by
+from mutagen.id3 import TEXT  # TEXT [ Supported Version: 2.00 ] # TEXT Lyricist/Text writer
+from mutagen.id3 import TFLT  # TFLT [ Supported Version: 2.00 ] # TFLT File type
+from mutagen.id3 import TGID  # TGID [ Supported Version: 2.00 ] # iTunes Podcast Identifier
+from mutagen.id3 import TIME  # TIME [ Supported Version: 2.00 ] # TIME Time
+from mutagen.id3 import TIPL  # TIPL [ Supported Version: 2.00 ] # Involved People List
+from mutagen.id3 import TIT1  # TIT1 [ Supported Version: 2.00 ] # TIT1 Content group description
+from mutagen.id3 import TIT2  # TIT2 [ Supported Version: 2.00 ] # TIT2 Title/songname/content description
+from mutagen.id3 import TIT3  # TIT3 [ Supported Version: 2.00 ] # TIT3 Subtitle/Description refinement
+from mutagen.id3 import TKEY  # TKEY [ Supported Version: 2.00 ] # TKEY Initial key
+from mutagen.id3 import TKWD  # TKWD [ Supported Version: 2.00 ] # iTunes Podcast Keywords
+from mutagen.id3 import TLAN  # TLAN [ Supported Version: 2.00 ] # TLAN Language(s)
+from mutagen.id3 import TLEN  # TLEN [ Supported Version: 2.00 ] # TLEN Length]
+from mutagen.id3 import TMCL  # TMCL [ Supported Version: 2.00 ] # Musicians Credits List
+from mutagen.id3 import TMED  # TMED [ Supported Version: 2.00 ] # TMED Media type
+from mutagen.id3 import TMOO  # TMOO [ Supported Version: 2.00 ] # Mood]
+from mutagen.id3 import TOAL  # TOAL [ Supported Version: 2.00 ] # TOAL Original album/movie/show title
+from mutagen.id3 import TOFN  # TOFN [ Supported Version: 2.00 ] # TOFN Original filename
+from mutagen.id3 import TOLY  # TOLY [ Supported Version: 2.00 ] # TOLY Original lyricist(s)/text writer(s)
+from mutagen.id3 import TOPE  # TOPE [ Supported Version: 2.00 ] # TOPE Original artist(s)/performer(s)
+from mutagen.id3 import TORY  # TORY [ Supported Version: 2.00 ] # TORY Original release year
+from mutagen.id3 import TOWN  # TOWN [ Supported Version: 2.00 ] # TOWN File owner/licensee
+from mutagen.id3 import TPE1  # TPE1 [ Supported Version: 2.00 ] # TPE1 Lead performer(s)/Soloist(s)
+from mutagen.id3 import TPE2  # TPE2 [ Supported Version: 2.00 ] # TPE2 Band/orchestra/accompaniment
+from mutagen.id3 import TPE3  # TPE3 [ Supported Version: 2.00 ] # TPE3 Conductor/performer refinement
+from mutagen.id3 import TPE4  # TPE4 [ Supported Version: 2.00 ] # TPE4 Interpreted, remixed, or otherwise modified by
+from mutagen.id3 import TPOS  # TPOS [ Supported Version: 2.00 ] # TPOS Part of a set
+from mutagen.id3 import TPRO  # TPRO [ Supported Version: 2.00 ] # Produced (P)
+from mutagen.id3 import TPUB  # TPUB [ Supported Version: 2.00 ] # TPUB Publisher
+from mutagen.id3 import TRCK  # TRCK [ Supported Version: 2.00 ] # TRCK Track number/Position in set
+from mutagen.id3 import TRDA  # TRDA [ Supported Version: 2.00 ] # TRDA Recording dates
+from mutagen.id3 import TRSN  # TRSN [ Supported Version: 2.00 ] # TRSN Internet radio station name
+from mutagen.id3 import TRSO  # TRSO [ Supported Version: 2.00 ] # TRSO Internet radio station owner
+from mutagen.id3 import TSIZ  # TSIZ [ Supported Version: 2.00 ] # TSIZ Size
+from mutagen.id3 import TSO2  # TSO2 [ Supported Version: 2.00 ] # iTunes Album Artist Sort
+from mutagen.id3 import TSOA  # TSOA [ Supported Version: 2.00 ] # Album Sort Order key
+from mutagen.id3 import TSOC  # TSOC [ Supported Version: 2.00 ] # iTunes Composer Sort
+from mutagen.id3 import TSOP  # TSOP [ Supported Version: 2.00 ] # Perfomer Sort Order key
+from mutagen.id3 import TSOT  # TSOT [ Supported Version: 2.00 ] # Title Sort Order key
+from mutagen.id3 import TSRC  # TSRC [ Supported Version: 2.00 ] # ISRC (international standard recording code)
+from mutagen.id3 import TSSE  # TSSE [ Supported Version: 2.00 ] # Software/Hardware and settings used for encoding
+from mutagen.id3 import TSST  # TSST [ Supported Version: 2.00 ] # Set Subtitle
+from mutagen.id3 import TXXX  # TXXX [ Supported Version: 2.00 ] # User defined text information frame
+from mutagen.id3 import TYER  # TYER [ Supported Version: 2.00 ] # Year
+from mutagen.id3 import UFID  # UFID [ Supported Version: 4.01 ] # Unique file identifier
+from mutagen.id3 import USER  # USER [ Supported Version: 4.23 ] # Terms of use
+from mutagen.id3 import USLT  # USLT [ Supported Version: 4.09 ] # Unsychronized lyric/text transcription
+from mutagen.id3 import WCOM  # WCOM [ Supported Version: 2.00 ] # Commercial information
+from mutagen.id3 import WCOP  # WCOP [ Supported Version: 2.00 ] # Copyright/Legal information
+from mutagen.id3 import GRP1  # GRP1 [ Supported Version: 2.00 ] # iTunes Grouping
+from mutagen.id3 import WFED  # WFED [ Supported Version: 2.00 ] # iTunes Podcast Feed
+from mutagen.id3 import WOAF  # WOAF [ Supported Version: 2.00 ] # Official audio file webpage
+from mutagen.id3 import WOAR  # WOAR [ Supported Version: 2.00 ] # Official artist/performer webpage
+from mutagen.id3 import WOAS  # WOAS [ Supported Version: 2.00 ] # Official audio source webpage
+from mutagen.id3 import WORS  # WORS [ Supported Version: 2.00 ] # Official internet radio station homepage
+from mutagen.id3 import WPAY  # WPAY [ Supported Version: 2.00 ] # Payment
+from mutagen.id3 import WPUB  # WPUB [ Supported Version: 2.00 ] # Publishers official webpage
+from mutagen.id3 import WXXX  # WXXX [ Supported Version: 2.00 ] # User defined URL link frame
+
+# =====================================================================================================================
+# Four Character Imports
+# https://pypi.org/project/mutagen/1.45.1/
+# https://mutagen.readthedocs.io/en/latest/changelog.html
+# https://mutagen.readthedocs.io/en/latest/api/id3_frames.html?highlight=Group%20identification%20registration
+# =============================================================================
+# Notes:
+# TODO: Share here when done https://stackoverflow.com/q/37414448/1896134 & https://stackoverflow.com/q/18248200/1896134
 # TODO: embed album art in an MP3
 # TODO: Produced By Tom MacDonald
 # TODO: Written By Tom MacDonald
 # TODO: Mixing Engineer Evan Morgan
 # TODO: Mastering Engineer Evan Morgan
 # TODO: Release Date December 25, 2020
-
-import mutagen
-from mutagen.mp3 import MP3
-from mutagen.id3 import ID3
-from mutagen.id3 import ID3Tags
-from mutagen.id3 import ID3NoHeaderError
-from mutagen.id3 import Encoding  # Required for SYLT SYNC'D Lyrics
-from functools import reduce  # Required for ID3 Header Checks
-# =====================================================================================================================
-# Four Character Imports
-# https://pypi.org/project/mutagen/1.45.1/
-# https://mutagen.readthedocs.io/en/latest/changelog.html
-# https://mutagen.readthedocs.io/en/latest/api/id3_frames.html?highlight=Group%20identification%20registration
-# =====================================================================================================================
-from mutagen.id3 import AENC  # AENC    [[#sec4.20|Audio encryption]]   Supported Version: (4.20)
-from mutagen.id3 import APIC  # APIC    [[#sec4.20|Audio encryption]]   Supported Version: (4.20)
-from mutagen.id3 import ASPI  # ASPI    [Audio seek point index. Attributes: S, L, N, b, and Fi. For the meaning of these, see the ID3v2.4 specification. Fi is a list of integers.]
-from mutagen.id3 import CHAP  # CHAP    [Chapter propertyHashKey An internal key used to ensure frame uniqueness in a tag]
-from mutagen.id3 import COMM  # COMM    [#sec4.11 Comments]   Supported Version: (4.11)
-from mutagen.id3 import COMR  # COMR    [#sec4.25 Commercial frame]   Supported Version: (4.25)
-from mutagen.id3 import CTOC  # CTOC    [Table of contents propertyHashKey An internal key used to ensure frame uniqueness in a tag]
-from mutagen.id3 import ENCR  # ENCR    [#sec4.26 Encryption method registration]   Supported Version: (4.26)
-from mutagen.id3 import EQU2  # EQU2    [Equalisation (2).  Attributes: method - interpolation method (0 = band, 1 = linear) desc - identifying description adjustments - list of (frequency, vol_adjustment) pairs]
-from mutagen.id3 import ETCO  # ETCO    [#sec4.6 Event timing codes]   Supported Version: (4.6)
-from mutagen.id3 import GEOB  # GEOB    [#sec4.16 General encapsulated object]   Supported Version: (4.16)
-from mutagen.id3 import GRID  # GRID    [#sec4.27 Group identification registration]   Supported Version: (4.27)
-from mutagen.id3 import GRP1  # GRP1    [iTunes Grouping]
-from mutagen.id3 import IPLS  # IPLS    [#sec4.4 Involved people list]   Supported Version: (4.4)
-from mutagen.id3 import LINK  # LINK    [#sec4.21 Linked information]   Supported Version: (4.21)
-from mutagen.id3 import MCDI  # MCDI    [#sec4.5 Music CD identifier]   Supported Version: (4.5)
-from mutagen.id3 import MLLT  # MLLT    [#sec4.7 MPEG location lookup table]   Supported Version: (4.7)
-from mutagen.id3 import MVIN  # MVIN    [iTunes Movement Number/Count]
-from mutagen.id3 import MVNM  # MVNM    [iTunes Movement Name]
-from mutagen.id3 import OWNE  # OWNE    [#sec4.24 Ownership frame]   Supported Version: (4.24)
-from mutagen.id3 import PCNT  # PCNT    [#sec4.17 Play counter]   Supported Version: (4.17)
-from mutagen.id3 import PCST  # PCST    [iTunes Podcast Flag]
-from mutagen.id3 import POPM  # POPM    [#sec4.18 Popularimeter]   Supported Version: (4.18)
-from mutagen.id3 import POSS  # POSS    [#sec4.22 Position synchronisation frame]   Supported Version: (4.22)
-from mutagen.id3 import PRIV  # PRIV    [#sec4.28 Private frame]   Supported Version: (4.28)
-from mutagen.id3 import RBUF  # RBUF    [#sec4.19 Recommended buffer size]   Supported Version: (4.19)
-from mutagen.id3 import RVA2  # RVA2    [Relative volume adjustment (2).]
-from mutagen.id3 import RVAD  # RVAD    [#sec4.12 Relative volume adjustment]   Supported Version: (4.12)
-from mutagen.id3 import RVRB  # RVRB    [#sec4.14 Reverb]   Supported Version: (4.14)
-from mutagen.id3 import SEEK  # SEEK    [Seek frame.]
-from mutagen.id3 import SIGN  # SIGN    [Signature frame.]
-from mutagen.id3 import SYLT  # SYLT    [#sec4.10 Synchronized lyric/text]   Supported Version: (4.10)
-from mutagen.id3 import SYTC  # SYTC    [#sec4.8 Synchronized tempo codes]   Supported Version: (4.8)
-from mutagen.id3 import TALB  # TALB    [#TALB Album/Movie/Show title]   Supported Version: (4.2.1)
-from mutagen.id3 import TBPM  # TBPM    [#TBPM BPM (beats per minute)]   Supported Version: (4.2.1)
-from mutagen.id3 import TCAT  # TCAT    [iTunes Podcast Category]
-from mutagen.id3 import TCMP  # TCMP    [iTunes Compilation Flag]
-from mutagen.id3 import TCOM  # TCOM    [#TCOM Composer]   Supported Version: (4.2.1)
-from mutagen.id3 import TCON  # TCON    [#TCON Content type]   Supported Version: (4.2.1)
-from mutagen.id3 import TCOP  # TCOP    [#TCOP Copyright message]   Supported Version: (4.2.1)
-from mutagen.id3 import TDAT  # TDAT    [#TDAT Date]   Supported Version: (4.2.1)
-from mutagen.id3 import TDEN  # TDEN    [Encoding Time]
-from mutagen.id3 import TDES  # TDES    [iTunes Podcast Description]
-from mutagen.id3 import TDLY  # TDLY    [#TDLY Playlist delay]   Supported Version: (4.2.1)
-from mutagen.id3 import TDOR  # TDOR    [Original Release Time]
-from mutagen.id3 import TDRC  # TDRC    [Recording Time]
-from mutagen.id3 import TDRL  # TDRL    [Release Time]
-from mutagen.id3 import TDTG  # TDTG    [Tagging Time]
-from mutagen.id3 import TENC  # TENC    [#TENC Encoded by]   Supported Version: (4.2.1)
-from mutagen.id3 import TEXT  # TEXT    [#TEXT Lyricist/Text writer]   Supported Version: (4.2.1)
-from mutagen.id3 import TFLT  # TFLT    [#TFLT File type]   Supported Version: (4.2.1)
-from mutagen.id3 import TGID  # TGID    [iTunes Podcast Identifier]
-from mutagen.id3 import TIME  # TIME    [#TIME Time]   Supported Version: (4.2.1)
-from mutagen.id3 import TIPL  # TIPL    [Involved People List]
-from mutagen.id3 import TIT1  # TIT1    [#TIT1 Content group description]   Supported Version: (4.2.1)
-from mutagen.id3 import TIT2  # TIT2    [#TIT2 Title/songname/content description]   Supported Version: (4.2.1)
-from mutagen.id3 import TIT3  # TIT3    [#TIT3 Subtitle/Description refinement]   Supported Version: (4.2.1)
-from mutagen.id3 import TKEY  # TKEY    [#TKEY Initial key]   Supported Version: (4.2.1)
-from mutagen.id3 import TKWD  # TKWD    [iTunes Podcast Keywords]
-from mutagen.id3 import TLAN  # TLAN    [#TLAN Language(s)]   Supported Version: (4.2.1)
-from mutagen.id3 import TLEN  # TLEN    [#TLEN Length]   Supported Version: (4.2.1)
-from mutagen.id3 import TMCL  # TMCL    [Musicians Credits List]
-from mutagen.id3 import TMED  # TMED    [#TMED Media type]   Supported Version: (4.2.1)
-from mutagen.id3 import TMOO  # TMOO    [Mood]
-from mutagen.id3 import TOAL  # TOAL    [#TOAL Original album/movie/show title]   Supported Version: (4.2.1)
-from mutagen.id3 import TOFN  # TOFN    [#TOFN Original filename]   Supported Version: (4.2.1)
-from mutagen.id3 import TOLY  # TOLY    [#TOLY Original lyricist(s)/text writer(s)]   Supported Version: (4.2.1)
-from mutagen.id3 import TOPE  # TOPE    [#TOPE Original artist(s)/performer(s)]   Supported Version: (4.2.1)
-from mutagen.id3 import TORY  # TORY    [#TORY Original release year]   Supported Version: (4.2.1)
-from mutagen.id3 import TOWN  # TOWN    [#TOWN File owner/licensee]   Supported Version: (4.2.1)
-from mutagen.id3 import TPE1  # TPE1    [#TPE1 Lead performer(s)/Soloist(s)]   Supported Version: (4.2.1)
-from mutagen.id3 import TPE2  # TPE2    [#TPE2 Band/orchestra/accompaniment]   Supported Version: (4.2.1)
-from mutagen.id3 import TPE3  # TPE3    [#TPE3 Conductor/performer refinement]   Supported Version: (4.2.1)
-from mutagen.id3 import TPE4  # TPE4    [#TPE4 Interpreted, remixed, or otherwise modified by]   Supported Version: (4.2.1)
-from mutagen.id3 import TPOS  # TPOS    [#TPOS Part of a set]   Supported Version: (4.2.1)
-from mutagen.id3 import TPRO  # TPRO    [Produced (P)]
-from mutagen.id3 import TPUB  # TPUB    [#TPUB Publisher]   Supported Version: (4.2.1)
-from mutagen.id3 import TRCK  # TRCK    [#TRCK Track number/Position in set]   Supported Version: (4.2.1)
-from mutagen.id3 import TRDA  # TRDA    [#TRDA Recording dates]   Supported Version: (4.2.1)
-from mutagen.id3 import TRSN  # TRSN    [#TRSN Internet radio station name]   Supported Version: (4.2.1)
-from mutagen.id3 import TRSO  # TRSO    [#TRSO Internet radio station owner]   Supported Version: (4.2.1)
-from mutagen.id3 import TSIZ  # TSIZ    [#TSIZ Size]   Supported Version: (4.2.1)
-from mutagen.id3 import TSO2  # TSO2    [iTunes Album Artist Sort]
-from mutagen.id3 import TSOA  # TSOA    [Album Sort Order key]
-from mutagen.id3 import TSOC  # TSOC    [iTunes Composer Sort]
-from mutagen.id3 import TSOP  # TSOP    [Perfomer Sort Order key]
-from mutagen.id3 import TSOT  # TSOT    [Title Sort Order key]
-from mutagen.id3 import TSRC  # TSRC    [#TSRC ISRC (international standard recording code)]   Supported Version: (4.2.1)
-from mutagen.id3 import TSSE  # TSSE    [#TSEE Software/Hardware and settings used for encoding]   Supported Version: (4.2.1)
-from mutagen.id3 import TSST  # TSST    [Set Subtitle]
-from mutagen.id3 import TXXX  # TXXX    [#TXXX User defined text information frame]   Supported Version: (4.2.2)
-from mutagen.id3 import TYER  # TYER    [#TYER Year]   Supported Version: (4.2.1)
-from mutagen.id3 import UFID  # UFID    [#sec4.1 Unique file identifier]   Supported Version: (4.1)
-from mutagen.id3 import USER  # USER    [#sec4.23 Terms of use]   Supported Version: (4.23)
-from mutagen.id3 import USLT  # USLT    [#sec4.9 Unsychronized lyric/text transcription]   Supported Version: (4.9)
-from mutagen.id3 import WCOM  # WCOM    [#WCOM Commercial information]   Supported Version: (4.3.1)
-from mutagen.id3 import WCOP  # WCOP    [#WCOP Copyright/Legal information]   Supported Version: (4.3.1)
-from mutagen.id3 import WFED  # WFED    [iTunes Podcast Feed]
-from mutagen.id3 import WOAF  # WOAF    [#WOAF Official audio file webpage]   Supported Version: (4.3.1)
-from mutagen.id3 import WOAR  # WOAR    [#WOAR Official artist/performer webpage]   Supported Version: (4.3.1)
-from mutagen.id3 import WOAS  # WOAS    [#WOAS Official audio source webpage]   Supported Version: (4.3.1)
-from mutagen.id3 import WORS  # WORS    [#WORS Official internet radio station homepage]   Supported Version: (4.3.1)
-from mutagen.id3 import WPAY  # WPAY    [#WPAY Payment]   Supported Version: (4.3.1)
-from mutagen.id3 import WPUB  # WPUB    [#WPUB Publishers official webpage]   Supported Version: (4.3.1)
-from mutagen.id3 import WXXX  # WXXX    [#WXXX User defined URL link frame]   Supported Version: (4.3.2)
-
-# =====================================================================================================================
-# Tag Checkers
-# =====================================================================================================================
-def CreateMissingTag(filename):
-    """Credit: https://github.com/quodlibet/mutagen/issues/327#issuecomment-339316014"""
-    try:
-        mp3 = MP3(filename)
-        if mp3.tags is None:
-            print(f"No ID3 Header or Tags Exist.")
-            mp3.add_tags()
-            print(f"Default Placeholder Tags Were Created.")
-        tags = mp3.tags
-        mp3.save()
-    except Exception as e:
-        print(f"{e}")
-
-def CheckID3Tag(filename):
-    """Check for Header Size."""
-    try:
-        # print header data
-        with open(filename, 'rb') as a:
-            data = a.read(10)
-            print(data)
-        # print header data check
-        with open(filename, 'rb') as a:
-            if data[0:3] != b'ID3':
-                print('No ID3 header present in file.')
-            else:
-                size_encoded = bytearray(data[-4:])
-                size = reduce(lambda a, b: (a * 128 + b), size_encoded, 0)
-                print(size)
-    except Exception as e:
-        print(f"Error: {e}")
-
-def convertID3Tags2to3(filename):
-    try:
-        tags = ID3(filename)
-        tags.update_to_v24()
-        tags.save(v1=2, v2_version=4, v23_sep='/')
-    except Exception as e:
-        print(f"Error: {e}")
-
-# =====================================================================================================================
-# Tag Delete ALL
-# =====================================================================================================================
-def deleteAllTags(filename):
-    """Remove All ID3 Tags."""
-    tags = ID3(filename)
-    tags.delete(filename)
-
-# =====================================================================================================================
-# Tag Getters
-# =====================================================================================================================
-def getSongArtist(filename):
-    tags = ID3(filename)
-    try:
-        print(f"{tags.getall('TPE1')[0][0]}")
-    except IndexError as e:
-        print(None)
-    except ID3NoHeaderError as e:
-        print(None)
-    except Exception as e:
-        print(f"Error: {e}")
-    return tags.getall('TPE1')[0][0]
-
-def getSongTitle(filename):
-    tags = ID3(filename)
-    try:
-        print(f"{tags.getall('TIT2')[0][0]}")
-    except IndexError as e:
-        print(None)
-    except Exception as e:
-        print(f"Error: {e}")
-    return tags.getall('TIT2')[0][0]
-
-def getSongAlbum(filename):
-    tags = ID3(filename)
-    try:
-        print(f"{tags.getall('TALB')[0][0]}")
-    except IndexError as e:
-        print(None)
-    except Exception as e:
-        print(f"Error: {e}")
-    return tags.getall('TALB')[0][0]
-
-def getSongAlbum(filename):
-    tags = ID3(filename)
-    try:
-        print(f"{tags.getall('TDOR')[0][0]}")  # Original Release Time
-        # print(f"{tags.getall('TDRL')[0][0]}") # Release Time
-    except IndexError as e:
-        print(None)
-    except Exception as e:
-        print(f"Error: {e}")
-    return tags.getall('TALB')[0][0]
-
-def getSongPlayCount(filename):
-    tags = ID3(filename)
-    try:
-        print(f"{tags.getall('PCNT')[0].count}")
-    except IndexError as e:
-        print(0)
-    except Exception as e:
-        print(f"Error: {e}")
-    return tags.getall('PCNT')[0].count
-
-def getSongSyncedLyrics(filename):
-    """
-    # [1000ms]: It's not the liquor I'm addicted to, it's feeling brave
-    # [2000ms]: The feeling of not feeling the pain
-    # [3000ms]: I been on and off the bottle, I put oxys up my nostrils, believe me
-    """
-    tags = ID3(filename)
-    try:
-        print(f"{tags.get('SYLT::eng')}")
-    except IndexError as e:
-        print(0)
-    except Exception as e:
-        print(f"Error: {e}")
-    return tags.get('SYLT::eng')
-
-def getSongUnSyncedLyrics(filename):
-    """
-    Input: filename, sync_lyrics
-    Example: setSongSyncedLyrics('song', [('Some Lyics at time in MilliSeconds', 1000), ('Some More Lyics, add as many as you'd like, 2000)]
-    """
-    tags = ID3(filename)
-    try:
-        print(f"{tags.get('USLT')}")
-    except IndexError as e:
-        print(0)
-    except Exception as e:
-        print(f"Error: {e}")
-    return tags.get('USLT')
-
-# =====================================================================================================================
-# Tag Setters
 # =====================================================================================================================
 
-def setSongArtist(filename, ArtistName):
-    tags = ID3(filename)
-    tags.add(TPE1(encoding=3, text=[ArtistName]))
-    tags.save(v1=50000000, v2_version=4, v23_sep='/')
 
-def setSongAlbum(filename, AlbumName):
-    tags = ID3(filename)
-    tags.add(TALB(encoding=3, text=[AlbumName]))
-    tags.save(v1=1, v2_version=4, v23_sep='/')
+class MP3TagYourSong(object):
+    """MP3TagYourSong Handle Getters & Setters for Mutagen ID3 Tags"""
+    def __init__(self, arg: str):
+        super(MP3TagYourSong, self).__init__()
+        self.songpath = arg  # Full File Path To MP3.
+        self.sync_lyrics = [('', 0), ('', 0)]
+        self.SongArtistName = self.getSongArtist()
+        self.SongAlbumName = self.getSongAlbum()
+        self.SongPlayCount = 0
 
-def setSongTitle(filename, SongTitle):
-    tags = ID3(filename)
-    tags.add(TIT2(encoding=3, text=[SongTitle]))
-    tags.save(v1=1, v2_version=4, v23_sep='/')
+    def SelectOneSongToEdit(self):
+        """JayRizzo Music Song Meta Mixer."""
+        self.songpath = askopenfilename(initialdir=f"{self.CWDIR}/Music/",
+                                        title="Choose A Song:",
+                                        filetypes=[("MP3", "*.mp3"),
+                                                   ("AAC Audio Files", "*.aac"),
+                                                   ("AIFF Audio Files", "*.aiff"),
+                                                   ("MPEG Audio Files", "*.mpeg"),
+                                                   ("Protected Audio Files", "*.m4a"),
+                                                   ("all", "*.*")])
 
-def setSongPlayCount(filename, PlayCount):
-    tags = ID3(filename)
-    tags.add(PCNT(encoding=3, count=PlayCount))
-    tags.save(v1=1, v2_version=4, v23_sep='/')
+    def duration_from_seconds(self, s):
+        """Module to get the convert Seconds to a time like format."""
+        s = s
+        m, s = divmod(s, 60)
+        h, m = divmod(m, 60)
+        d, h = divmod(h, 24)
+        TIMELAPSED  = f"{d:03.0f}:{h:02.0f}:{m:02.0f}:{s:02.0f}"
+        return TIMELAPSED
 
-def setSongSyncedLyrics(filename, sync_lyrics : list):
-    """
-    Input: filename, sync_lyrics
-    Example: setSongSyncedLyrics('song', [('Some Lyics at time in MilliSeconds', 1000), ('Some More Lyics, add as many as you'd like, 2000)]
-    """
-    tags = ID3(filename)
-    slrcs = sync_lyrics
-    tags.setall("SYLT", [SYLT(encoding=Encoding.UTF16, lang='eng', format=2, type=1, text=slrcs)])
-    tags.save(v1=1, v2_version=4, v23_sep='/')
+    def duration_from_millseconds(self, ms):
+        """Module to get the convert Seconds to a time like format."""
+        ms = ms
+        s, ms = divmod(ms, 1000)
+        m, s = divmod(s, 60)
+        h, m = divmod(m, 60)
+        d, h = divmod(h, 24)
+        TIMELAPSED  = f"{d:03.0f}:{h:02.0f}:{m:02.0f}:{s:02.0f}:{ms:03.0f}"
+        return TIMELAPSED
 
-def setSongUnSyncedLyrics(filename, sync_lyrics : list):
-    """
-    Input: filename, sync_lyrics
-    Example: setSongSyncedLyrics('song', [('Some Lyics at time in MilliSeconds', 1000), ('Some More Lyics, add as many as you'd like, 2000)]
-    """
-    tags = ID3(filename)
-    slrcs = sync_lyrics
-    tags.setall("SYLT", [USLT(encoding=Encoding.UTF16, lang='eng', desc=u'desc', text=slrcs)])
-    tags.save(v1=1, v2_version=4, v23_sep='/')
+    # =====================================================================================================================
+    # Tag Checkers
+    # =====================================================================================================================
+    def CreateMissingTag(self):
+        """Credit: https://github.com/quodlibet/mutagen/issues/327#issuecomment-339316014"""
+        try:
+            mp3 = MP3(self.songpath)
+            if mp3.tags is None:
+                print(f"No ID3 Header or Tags Exist.")
+                mp3.add_tags()
+                print(f"Default Placeholder Tags Were Created.")
+            tags = mp3.tags
+            mp3.save()
+        except Exception as e:
+            print(f"{e}")
 
-# =====================================================================================================================
-# Example Song
-# =====================================================================================================================
-# filename = '/Users/jkirchoff/Documents/github/MP3Player/Music/02 Bad Girls Club.mp3'
-filename = '/Users/jkirchoff/Documents/github/MP3Player/Music/Tom MacDonald - Angels (Explicit).mp3'
-# https://genius.com/Tom-macdonald-angels-lyrics
+    def CheckID3Tag(self):
+        """Check for Header Size."""
+        try:
+            # print header data
+            with open(self.songpath, 'rb') as a:
+                data = a.read(10)
+                print(data)
+            # print header data check
+            with open(self.songpath, 'rb') as a:
+                if data[0:3] != b'ID3':
+                    print('No ID3 header present in file.')
+                else:
+                    size_encoded = bytearray(data[-4:])
+                    size = functools.reduce(lambda a, b: (a * 128 + b), size_encoded, 0)
+                    print(size)
+        except Exception as e:
+            print(f"Error: {e}")
 
-# tags = ID3(filename)
-# tags.delete(filename)  # Remove All ID3 Tags.
+    def convertID3Tags2to3(self):
+        try:
+            tags = ID3(self.songpath)
+            tags.update_to_v24()
+            tags.save(v1=2, v2_version=4, v23_sep='/')
+        except Exception as e:
+            print(f"Error: {e}")
+
+    # =====================================================================================================================
+    # Tag Delete ALL
+    # =====================================================================================================================
+    def deleteAllTags(self):
+        """Remove All ID3 Tags."""
+        tags = ID3(self.songpath)
+        tags.delete(self.songpath)
+
+    # =====================================================================================================================
+    # Tag Getters
+    # =====================================================================================================================
+    def getSongArtist(self):
+        tags = ID3(self.songpath)
+        try:
+            self.SongArtistName = f"{tags.getall('TPE1')[0][0]}"
+            # print(f"{tags.getall('TPE1')[0][0]}")
+        except IndexError as e:
+            self.SongArtistName
+        except ID3NoHeaderError as e:
+            self.SongArtistName
+        except Exception as e:
+            print(f"Error: {e}")
+        return self.SongArtistName
+
+    def getSongTitle(self):
+        tags = ID3(self.songpath)
+        try:
+            print(f"{tags.getall('TIT2')[0][0]}")
+        except IndexError as e:
+            print(None)
+        except Exception as e:
+            print(f"Error: {e}")
+        return tags.getall('TIT2')[0][0]
+
+    def getSongAlbum(self):
+        tags = ID3(self.songpath)
+        try:
+            print(f"{tags.getall('TALB')[0][0]}")
+        except IndexError as e:
+            print(None)
+        except Exception as e:
+            print(f"Error: {e}")
+        return tags.getall('TALB')[0][0]
+
+    def getSongAlbum(self):
+        tags = ID3(self.songpath)
+        try:
+            print(f"{tags.getall('TDOR')[0][0]}")  # Original Release Time
+            # print(f"{tags.getall('TDRL')[0][0]}") # Release Time
+        except IndexError as e:
+            print('')
+        except Exception as e:
+            print(f"Error: {e}")
+        return tags.getall('TALB')[0][0]
+
+    def getSongPlayCount(self):
+        try:
+            tags = ID3(self.songpath)
+            self.SongPlayCount = f"{tags.getall('PCNT')[0].count}"
+        except IndexError as e:
+            self.SongPlayCount = 0
+        except Exception as e:
+            print(f"Error: {e}")
+        return print(self.SongPlayCount)
+
+    def getSongSyncedLyrics(self):
+        """
+        # [1000ms]: It's not the liquor I'm addicted to, it's feeling brave
+        # [2000ms]: The feeling of not feeling the pain
+        # [3000ms]: I been on and off the bottle, I put oxys up my nostrils, believe me
+        """
+        tags = ID3(self.songpath)
+        try:
+            print(f"{tags.get('SYLT::eng')}")
+        except IndexError as e:
+            print(0)
+        except Exception as e:
+            print(f"Error: {e}")
+        return tags.get('SYLT::eng')
+
+    def getSongUnSyncedLyrics(self):
+        """
+        Input: filename, sync_lyrics
+        Example: setSongSyncedLyrics('song', [('Some Lyics at time in MilliSeconds', 1000), ('Some More Lyics, add as many as you'd like, 2000)]
+        """
+        tags = ID3(self.songpath)
+        try:
+            print(f"{tags.get('USLT')}")
+        except IndexError as e:
+            print(0)
+        except Exception as e:
+            print(f"Error: {e}")
+        return tags.get('USLT')
+
+    # =====================================================================================================================
+    # Tag Setters
+    # =====================================================================================================================
+
+    def setSongArtist(self, ArtistName):
+        self.SongArtistName = ArtistName
+        tags = ID3(self.songpath)
+        tags.add(TPE1(encoding=3, text=[ArtistName]))
+        tags.save(v1=50000000, v2_version=4, v23_sep='/')
+
+    def setSongAlbum(self, AlbumName):
+        tags = ID3(self.songpath)
+        tags.add(TALB(encoding=3, text=[AlbumName]))
+        tags.save(v1=1, v2_version=4, v23_sep='/')
+
+    def setSongTitle(self, SongTitle):
+        tags = ID3(self.songpath)
+        tags.add(TIT2(encoding=3, text=[SongTitle]))
+        tags.save(v1=1, v2_version=4, v23_sep='/')
+
+    def setSongPlayCount(self, PlayCount):
+        tags = ID3(self.songpath)
+        tags.add(PCNT(encoding=3, count=PlayCount))
+        tags.save(v1=1, v2_version=4, v23_sep='/')
+
+    def setSongSyncedLyrics(self, sync_lyrics : list):
+        """
+        Input: filename, sync_lyrics
+        Example: setSongSyncedLyrics('song', [('Some Lyics at time in MilliSeconds', 1000), ('Some More Lyics, add as many as you'd like, 2000)]
+        """
+        tags = ID3(self.songpath)
+        slrcs = sync_lyrics
+        tags.setall("SYLT", [SYLT(encoding=Encoding.UTF16, lang='eng', format=2, type=1, text=slrcs)])
+        tags.save(v1=1, v2_version=4, v23_sep='/')
+
+    def setSongUnSyncedLyrics(filename, sync_lyrics : list):
+        """
+        Input: filename, sync_lyrics
+        Example: setSongSyncedLyrics('song', [('Some Lyics at time in MilliSeconds', 1000), ('Some More Lyics, add as many as you'd like, 2000)]
+        """
+        tags = ID3(self.songpath)
+        slrcs = sync_lyrics
+        tags.setall("SYLT", [USLT(encoding=Encoding.UTF16, lang='eng', desc=u'desc', text=slrcs)])
+        tags.save(v1=1, v2_version=4, v23_sep='/')
 
 
-CreateMissingTag(filename)
-CheckID3Tag(filename)
-convertID3Tags2to3(filename)
-getSongArtist(filename)
-setSongArtist(filename, "Tom MacDonald")
-getSongArtist(filename)
-getSongTitle(filename)
-setSongTitle(filename, "Angels (Explicit)")
-getSongTitle(filename)
-getSongAlbum(filename)
-setSongAlbum(filename, "No Guts No Glory")
-getSongAlbum(filename)
-getSongPlayCount(filename)
-setSongPlayCount(filename, 123)
-getSongPlayCount(filename)
-getSongSyncedLyrics(filename)
-# setSongSyncedLyrics(filename, sync_lyrics)
+if __name__ == '__main__':
+    # =====================================================================================================================
+    # Example Song
+    # =====================================================================================================================
+    filename2 = '/Users/jkirchoff/Documents/github/MP3Player/Music/02 Bad Girls Club.mp3'
+    filename = '/Users/jkirchoff/Documents/github/MP3Player/Music/Tom MacDonald - Angels (Explicit).mp3'
+    # https://genius.com/Tom-macdonald-angels-lyrics
+    song = MP3TagYourSong(filename)
+    song2 = MP3TagYourSong(filename2)
+    # Checkers
+    song.CreateMissingTag()
+    song.CheckID3Tag()
+    song.convertID3Tags2to3()
+    # Getters
+    song.getSongTitle()
+    song.getSongArtist()
+    song.getSongAlbum()
+    song.getSongPlayCount()
+    # Setters
+    song.setSongTitle("Angels (Explicit)")
+    song.setSongArtist("Tom MacDonald")
+    song.setSongAlbum("No Guts No Glory")
+    song.setSongPlayCount(393)
+    # Check the changes
+    song.getSongTitle()
+    song.getSongArtist()
+    song.getSongAlbum()
+    song.getSongPlayCount()
+    # Check Second song
+    song2.getSongArtist()
+    song2.getSongTitle()
+    song2.getSongAlbum()
+    song2.getSongPlayCount()
+
+
+# b'ID3\x04\x00\x00\x00\x00E6'
+# 8886
+# Tom MacDonald
+# Angels (Explicit)
+# None
+# 123
+# 123
+# Tom MacDonaldz
+# Angels (Explicitz)
+# None
+# 1234534
+# 1234534
+# [Finished in 168ms]
+# getSongSyncedLyrics(filename)
+# # setSongSyncedLyrics(filename, sync_lyrics)
 # getSongSyncedLyrics(filename)
 
-# Released September 3, 2021
+# filename = '/Users/jkirchoff/Desktop/1-01 Angels (Explicit)  TITLE.mp4'
+# MP4VideoTags = MP4(filename)
+# MP4VideoTags['\xa9nam'] = 'Video Name'
+# MP4VideoTags['\xa9alb'] = 'DVD-Name'
+# MP4VideoTags['\xa9gen'] = 'Video-Training'
+# MP4VideoTags['\xa9day'] = '2015'
+# MP4VideoTags['\xa9ART'] = 'Company'
+# MP4VideoTags['aART'] = 'Company'
+# MP4VideoTags['\xa9wrt'] = 'Company'
+# MP4VideoTags['cprt'] = 'Copyright (c) Company'
+# MP4VideoTags['desc'] = 'description'
+# MP4VideoTags['tvsh'] = 'DVD-Name'
+# MP4VideoTags['trkn'] = [(1, 18)]
+# MP4VideoTags['disk'] = [(1, 1)]
+# MP4VideoTags['stik'] = 10
 
-class MP3TagButler(object):
-    """MP3TagButler Handle Getters & Setters for Mutagen ID3 Tags"""
-    def __init__(self, arg):
-        super(MP3TagButler, self).__init__()
-        self.arg = arg
+# MP4VideoTags.save()
 
-def duration_from_seconds(s):
-    """Module to get the convert Seconds to a time like format."""
-    s = s
-    m, s = divmod(s, 60)
-    h, m = divmod(m, 60)
-    d, h = divmod(h, 24)
-    TIMELAPSED  = f"{d:03.0f}:{h:02.0f}:{m:02.0f}:{s:02.0f}"
-    return TIMELAPSED
+# CreateMissingTag(filename)
+# getSongArtist(filename)
+# getSongTitle(filename)
+# getSongAlbum(filename)
+# getSongPlayCount(filename)
+# getSongSyncedLyrics(filename)
 
-def duration_from_millseconds(ms):
-    """Module to get the convert Seconds to a time like format."""
-    ms = ms
-    s, ms = divmod(ms, 1000)
-    m, s = divmod(s, 60)
-    h, m = divmod(m, 60)
-    d, h = divmod(h, 24)
-    TIMELAPSED  = f"{d:03.0f}:{h:02.0f}:{m:02.0f}:{s:02.0f}:{ms:03.0f}"
-    return TIMELAPSED
+
+# # Released September 3, 2021
 
 # [1000ms]: It's not the liquor I'm addicted to, it's feeling brave
 # [2000ms]: The feeling of not feeling the pain
@@ -388,7 +468,7 @@ def duration_from_millseconds(ms):
 
 # audio = MP3(filename, ID3=EasyID3)
 # audio.pprint()
-# tag = MP3(filename)
+# tag = MP3(self.songpath)
 # print(tag.info.pprint())
 # print(f"tag.bitrate:           {tag.info.bitrate}")
 # print(f"tag.length:            {tag.info.length}")
@@ -414,7 +494,7 @@ def duration_from_millseconds(ms):
 # # print(f"tag.info:              {dir(tag)}")
 # # print(f"tag.ID3:               {dir(tag.ID3)}")
 # # print(f"tag.ID3:               {dir(tag.ID3.values)}")
-# m = ID3(filename)
+# m = ID3(self.songpath)
 # print(m)
 # def SongArtist(owner,  preview_start=0, preview_length=0, data=''):
 #     id3.TOPE('')
@@ -428,7 +508,6 @@ def duration_from_millseconds(ms):
 #     except InvalidTagError, message:
 #         print("Invalid ID3 tag:", message)
 # # ID3v2.3/4 Frames
-# id3.AENC(owner='', preview_start=0, preview_length=0, data='')
 # id3.TextFrame('')
 # id3.TimeStampTextFrame('')
 # id3.NumericPartTextFrame('')
@@ -436,10 +515,6 @@ def duration_from_millseconds(ms):
 # id3.PairedTextFrame(encoding=<Encoding.UTF16: 1>, people=[])
 # id3.UrlFrame(url='')
 # id3.UrlFrameU(url='')
-# id3.add(APIC(encoding=3, mime=u'image/jpeg', type=3, desc=u'Front Cover', data=self.get_cover(info)))
-# id3.add(APIC(encoding=3, mime=u'image/jpg', type=3, # #desc=u'Front Cover', data=self.get_cover(info)))
-# id3.add(APIC(encoding=3, mime=u'image/jpg', type=3, desc=u'Cover', data=self.get_cover(info['album_pic_url'])))
-# id3.add(APIC(encoding=3, mime=u'image/jpg', type=3, desc=u'Front Cover', data=self.get_cover(info)))
 # id3.add(COMM(encoding=3, desc=u'Comment', # text=info['song_url']))
 # id3.add(COMM(encoding=3, desc=u'Comment', text=info['comment']))
 # id3.add(COMM(encoding=3, desc=u'Comment', text=info['song_url']))
@@ -480,11 +555,6 @@ def duration_from_millseconds(ms):
 # tags.getall('tags.TDRC')
 # tags.getall('tags.TDRL')
 # tags.getall('tags.TDTG')
-
-# Remove old 'APIC' frame
-# Because two 'APIC' may exist together with the different description
-# For more information visit: http://mutagen.readthedocs.io/en/latest/user/id3.html
-# if id3.getall('APIC'): id3.delall('APIC')
 
 
 # sync_lyrics = [
@@ -643,7 +713,7 @@ def duration_from_millseconds(ms):
 #     return filetomove
 
 
-# def read_id3_info(filename):
+# def read_id3_info(self):
 #     """Module to read MP3 Meta Tags."""
 #     tag = id3.Tag()
 #     tag.parse(filename)
@@ -767,7 +837,7 @@ def duration_from_millseconds(ms):
 #     return
 
 
-# def checkthings(filename):
+# def checkthings(self):
 #     """Module to Verify MP3 Meta Tags."""
 #     tag = id3.Tag()
 #     tag.parse(filename)
@@ -983,7 +1053,7 @@ def duration_from_millseconds(ms):
 #     stuff_to_write.writeheader()
 
 
-# def read_id3_artist(filename):
+# def read_id3_artist(self):
 #     """Module to read MP3 Meta Tags."""
 #     filename = filename
 #     filename.encode()
@@ -1013,7 +1083,7 @@ def duration_from_millseconds(ms):
 #         stuff_to_write.writerow([artist, title, track_path])
 
 
-# def read_id3_info(filename):
+# def read_id3_info(self):
 #     """Module to read MP3 Meta Tags."""
 #     tag = id3.Tag()
 #     tag.parse(filename)
@@ -1137,7 +1207,7 @@ def duration_from_millseconds(ms):
 #     return
 
 
-# def checkthings(filename):
+# def checkthings(self):
 #     """Module to Verify MP3 Meta Tags."""
 #     tag = id3.Tag()
 #     tag.parse(filename)
@@ -1202,7 +1272,7 @@ def duration_from_millseconds(ms):
 #                 print("# {} Song Meta END {}".format('=' * 34, '=' * 34))
 
 
-# def read_id3_artist(filename):
+# def read_id3_artist(self):
 #     """Module to read MP3 Meta Tags."""
 #     filename = filename
 #     filename.encode()
@@ -1742,7 +1812,7 @@ def duration_from_millseconds(ms):
 # search_dir = path.join(current_home + "/Music/iTunes/iTunes Media/Music/Rush/Chronicles (Disc 2)/2-03 Limelight.mp3")  # noqa
 
 
-# def track_info(filename):
+# def track_info(self):
 #     """Module Built To Read ID3 Track Data."""
 #     tag = id3.Tag()
 #     tag.parse(filename)
@@ -1967,3 +2037,215 @@ def duration_from_millseconds(ms):
 # # Artist: "Aerosmith"
 # # Track : "Walk On Water"
 # # Path  : "/Users/MyUserName/Music/iTunes/iTunes Media/Music/Aerosmith/Big Ones/01 Walk On Water.mp3"  # noqa
+
+
+  # audio.add(frames.TALB(text=metadata['album']))
+  #   # audio.add(TPOS(text=metadata['disc'])) # I want the series, but audio players want an integer. put off for now
+  #   audio.add(frames.TDRC(text=[ ID3TimeStamp(str(metadata['year'])) ]))
+  #   audio.add(frames.TRCK(text=str(metadata['track']))) # useless since there's no discs, I'll keep anyways.
+  #   audio.add(frames.TIT2(text=metadata['title']))
+  #   # audio.add(TPE2(text=metadata['artists'])) # ID3 is not made for singers, doesn't have a tag (TPE1 and TPE2 are wrong)
+  #   audio.add(frames.TXXX(text=metadata['series'],desc='series'))
+  #   audio.add(frames.TXXX(text=metadata['themetype'],desc='themetype'))
+  #   audio.add(frames.TXXX(text=str(metadata['version']),desc='version'))
+  #   audio.add(frames.TXXX(text=str(metadata['videoid']),desc='videoid'))
+  #   audio.add(frames.TXXX(text=metadata['notes'],desc='notes'))
+  #   audio.add(frames.TCON(text=metadata['genre']))
+  #   audio.add(frames.TENC(text=metadata['encodedby']))
+  #   audio.add(frames.TIT1(text=metadata['cgroup']))
+  #   audio.save(v2_version=OPTIONS['id3v2_version'])
+
+# [acoustid_fingerprint, acoustid_id, album, albumartist, albumartistsort, albumsort, arranger, artist, artistsort, asin, author, barcode, bpm, catalognumber, compilation, composer, composersort, conductor, copyright, date, discnumber, discsubtitle, encodedby, genre, isrc, language, length, lyricist, media, mood, musicbrainz_albumartistid, musicbrainz_albumid, musicbrainz_albumstatus, musicbrainz_albumtype, musicbrainz_artistid, musicbrainz_discid, musicbrainz_releasegroupid, musicbrainz_releasetrackid, musicbrainz_trackid, musicbrainz_trmid, musicbrainz_workid, musicip_fingerprint, musicip_puid, organization, originaldate, performer, performer:*, releasecountry, replaygain_*_gain, replaygain_*_peak, title, titlesort, tracknumber, version, website]
+#
+# /Music/Compilations/Album Name/1-01 Angels (Explicit)  TITLE.mp4
+
+# https://programtalk.com/vs4/python/10712/mutagen/tests/test_easymp4.py/
+# # -*- coding: utf-8 -*-
+
+# import os
+
+# from mutagen import MutagenError
+# from mutagen.easymp4 import EasyMP4, error as MP4Error
+
+# from tests import TestCase, DATA_DIR, get_temp_copy
+
+
+# clast TEasyMP4(TestCase):
+
+#     def setUp(self):
+#         self.filename = get_temp_copy(os.path.join(DATA_DIR, 'has-tags.m4a'))
+#         self.mp4 = EasyMP4(self.filename)
+#         self.mp4.delete()
+
+#     def tearDown(self):
+#         os.unlink(self.filename)
+
+#     def test_pprint(self):
+#         self.mp4["artist"] = "baz"
+#         self.mp4.pprint()
+
+#     def test_has_key(self):
+#         self.failIf("foo" in self.mp4)
+
+#     def test_empty_file(self):
+#         empty = os.path.join(DATA_DIR, 'emptyfile.mp3')
+#         self.astertRaises(MP4Error, EasyMP4, filename=empty)
+
+#     def test_nonexistent_file(self):
+#         empty = os.path.join(DATA_DIR, 'does', 'not', 'exist')
+#         self.astertRaises(MutagenError, EasyMP4, filename=empty)
+
+#     def test_write_single(self):
+#         for key in EasyMP4.Get:
+#             if key in ["tracknumber", "discnumber", "date", "bpm"]:
+#                 continue
+
+#             # Test creation
+#             self.mp4[key] = "a test value"
+#             self.mp4.save(self.filename)
+#             mp4 = EasyMP4(self.filename)
+#             self.failUnlessEqual(mp4[key], ["a test value"])
+#             self.failUnlessEqual(mp4.keys(), [key])
+
+#             # And non-creation setting.
+#             self.mp4[key] = "a test value"
+#             self.mp4.save(self.filename)
+#             mp4 = EasyMP4(self.filename)
+#             self.failUnlessEqual(mp4[key], ["a test value"])
+#             self.failUnlessEqual(mp4.keys(), [key])
+
+#             del(self.mp4[key])
+
+#     def test_write_double(self):
+#         for key in EasyMP4.Get:
+#             if key in ["tracknumber", "discnumber", "date", "bpm"]:
+#                 continue
+
+#             self.mp4[key] = ["a test", "value"]
+#             self.mp4.save(self.filename)
+#             mp4 = EasyMP4(self.filename)
+#             self.failUnlessEqual(mp4.get(key), ["a test", "value"])
+#             self.failUnlessEqual(mp4.keys(), [key])
+
+#             self.mp4[key] = ["a test", "value"]
+#             self.mp4.save(self.filename)
+#             mp4 = EasyMP4(self.filename)
+#             self.failUnlessEqual(mp4.get(key), ["a test", "value"])
+#             self.failUnlessEqual(mp4.keys(), [key])
+
+#             del(self.mp4[key])
+
+#     def test_write_date(self):
+#         self.mp4["date"] = "2004"
+#         self.mp4.save(self.filename)
+#         mp4 = EasyMP4(self.filename)
+#         self.failUnlessEqual(mp4["date"], ["2004"])
+
+#         self.mp4["date"] = "2004"
+#         self.mp4.save(self.filename)
+#         mp4 = EasyMP4(self.filename)
+#         self.failUnlessEqual(mp4["date"], ["2004"])
+
+#     def test_date_delete(self):
+#         self.mp4["date"] = "2004"
+#         self.failUnlessEqual(self.mp4["date"], ["2004"])
+#         del(self.mp4["date"])
+#         self.failIf("date" in self.mp4)
+
+#     def test_write_date_double(self):
+#         self.mp4["date"] = ["2004", "2005"]
+#         self.mp4.save(self.filename)
+#         mp4 = EasyMP4(self.filename)
+#         self.failUnlessEqual(mp4["date"], ["2004", "2005"])
+
+#         self.mp4["date"] = ["2004", "2005"]
+#         self.mp4.save(self.filename)
+#         mp4 = EasyMP4(self.filename)
+#         self.failUnlessEqual(mp4["date"], ["2004", "2005"])
+
+#     def test_write_invalid(self):
+#         self.failUnlessRaises(ValueError, self.mp4.__gesatem__, "notvalid")
+#         self.failUnlessRaises(ValueError, self.mp4.__delitem__, "notvalid")
+#         self.failUnlessRaises(
+#             ValueError, self.mp4.__sesatem__, "notvalid", "tests")
+
+#     def test_numeric(self):
+#         for tag in ["bpm"]:
+#             self.mp4[tag] = "3"
+#             self.failUnlessEqual(self.mp4[tag], ["3"])
+#             self.mp4.save()
+#             mp4 = EasyMP4(self.filename)
+#             self.failUnlessEqual(mp4[tag], ["3"])
+
+#             del(mp4[tag])
+#             self.failIf(tag in mp4)
+#             self.failUnlessRaises(KeyError, mp4.__delitem__, tag)
+
+#             self.failUnlessRaises(
+#                 ValueError, self.mp4.__sesatem__, tag, "hello")
+
+#     def test_numeric_pairs(self):
+#         for tag in ["tracknumber", "discnumber"]:
+#             self.mp4[tag] = "3"
+#             self.failUnlessEqual(self.mp4[tag], ["3"])
+#             self.mp4.save()
+#             mp4 = EasyMP4(self.filename)
+#             self.failUnlessEqual(mp4[tag], ["3"])
+
+#             del(mp4[tag])
+#             self.failIf(tag in mp4)
+#             self.failUnlessRaises(KeyError, mp4.__delitem__, tag)
+
+#             self.mp4[tag] = "3/10"
+#             self.failUnlessEqual(self.mp4[tag], ["3/10"])
+#             self.mp4.save()
+#             mp4 = EasyMP4(self.filename)
+#             self.failUnlessEqual(mp4[tag], ["3/10"])
+
+#             del(mp4[tag])
+#             self.failIf(tag in mp4)
+#             self.failUnlessRaises(KeyError, mp4.__delitem__, tag)
+
+#             self.failUnlessRaises(
+#                 ValueError, self.mp4.__sesatem__, tag, "hello")
+
+        # if self.filetype == 'mp3':
+        #     import mutagen.mp3 as meta_parser
+        # elif self.filetype == 'ogg':
+        #     import mutagen.oggvorbis as meta_parser
+        # elif self.filetype == 'opus':
+        #     import mutagen.oggopus as meta_parser
+        # elif self.filetype == 'flac':
+        #     import mutagen.flac as meta_parser
+        # elif self.filetype in ['mp4', 'm4a']:
+        #     import mutagen.mp4 as meta_parser
+        # else:
+        #     self.__log.info(
+        #         'Extracting metadata not supported for %s files.', self.filetype )
+        #     return False
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#   if malid is not None and OPTIONS['coverart']['folder']:
+#       coverart,desc,mimetype = get_coverart(metadata,malid)
+#       audio.add(frames.APIC(encoding=3,mime=mimetype,desc=desc,type=3,data=coverart))
+
+# Remove old 'APIC' frame
+# Because two 'APIC' may exist together with the different description
+# For more information visit: http://mutagen.readthedocs.io/en/latest/user/id3.html
+# if id3.getall('APIC'): id3.delall('APIC')
+
+
+# id3.add(APIC(encoding=3, mime=u'image/jpg', type=3, desc=u'Front Cover', data=self.get_cover(info)))
+
