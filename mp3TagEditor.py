@@ -146,33 +146,29 @@ class MP3TagYourSong(object):
         super(MP3TagYourSong, self).__init__()
         self.songpath = arg  # Full File Path To MP3.
         self.sync_lyrics = [('', 0), ('', 0)]
-        self.checkFileTag = self.CreateMissingTag()
+        self.checkFileTag   = ''
+        self.SongArtistName = ''
+        self.SongAlbumName  = ''
+        self.SongTitleName  = ''
+        self.SongPlayCount  = 0
+        self.SongSyncLyrcs  = ''
+        self.SongPlainLyrcs = ''
+        self.SongDuration   = 0
+        self.MP3HNDLR       = self.SetMP3Handle()
+        self.ID3HNDLR       = self.SetID3Handle()
+        self.startFiredUp()
+
+    # =====================================================================================================================
+    # Tag Checkers
+    # =====================================================================================================================
+    def startFiredUp(self):
         self.SongArtistName = self.getSongArtist()
         self.SongAlbumName = self.getSongAlbum()
         self.SongTitleName = self.getSongTitle()
         self.SongPlayCount = self.getSongPlayCount()
         self.SongSyncLyrcs = self.getSongSyncedLyrics()
         self.SongPlainLyrcs = self.getSongUnSyncedLyrics()
-        self.MP3HNDLR = MP3(self.songpath)
-        self.ID3HNDLR = ID3(self.songpath)
-        self.SongDuration = self.MP3HNDLR.info.length
-
-
-    def SelectOneSongToEdit(self):
-        """JayRizzo Music Song Meta Mixer."""
-        self.songpath = askopenfilename(initialdir=f"{self.CWDIR}/Music/",
-                                        title="Choose A Song:",
-                                        filetypes=[("MP3", "*.mp3"),
-                                                   ("AAC Audio Files", "*.aac"),
-                                                   ("AIFF Audio Files", "*.aiff"),
-                                                   ("MPEG Audio Files", "*.mpeg"),
-                                                   ("Protected Audio Files", "*.m4a"),
-                                                   ("all", "*.*")])
-        return self.songpath
-
-    # =====================================================================================================================
-    # Tag Checkers
-    # =====================================================================================================================
+        self.SongDuration = self.getSongDuration()
 
 
     def CreateMissingTag(self):
@@ -211,9 +207,8 @@ class MP3TagYourSong(object):
     def convertID3Tags2to3(self):
         """Update The ID3 Tags In The Files."""
         try:
-            tags = ID3(self.songpath)
-            tags.update_to_v24()
-            tags.save(v1=2, v2_version=4, v23_sep='/')
+            self.ID3HNDLR.update_to_v24()
+            self.ID3HNDLR.save(v1=2, v2_version=4, v23_sep='/')
         except Exception as e:
             print(f"Error: {e}")
 
@@ -227,39 +222,38 @@ class MP3TagYourSong(object):
         TIMELAPSED  = f"{d:03.0f}:{h:02.0f}:{m:02.0f}:{s:02.0f}"
         return TIMELAPSED
 
+
     # =====================================================================================================================
     # Tag Delete ALL
     # =====================================================================================================================
 
+
     def deleteAllTags(self):
         """Remove All ID3 Tags From A File Including The ID3 Header."""
-        tags = ID3(self.songpath)
-        tags.delete(self.songpath)
+        self.ID3HNDLR.delete(self.songpath)
+        self.ID3HNDLR.save()
+        return
 
     # =====================================================================================================================
-    # Tag Getters
+    # Getters
     # =====================================================================================================================
-
-    def getSongArtist(self):
-        """Show Song Artist Name."""
-        try:
-            tags = ID3(self.songpath)
-            self.SongArtistName = f"{tags.getall('TPE1')[0][0]}"
-        except IndexError as e:
-            self.SongArtistName
-        except ID3NoHeaderError as e:
-            self.CreateMissingTag()
-            self.SongArtistName = ''
-        except Exception as e:
-            print(f"Error: {e}")
-        return self.SongArtistName
+    def getOneSongToEdit(self):
+        """JayRizzo Music Song Meta Mixer."""
+        self.songpath = askopenfilename(initialdir=f"{self.CWDIR}/Music/",
+                                        title="Choose A Song:",
+                                        filetypes=[("MP3", "*.mp3"),
+                                                   ("AAC Audio Files", "*.aac"),
+                                                   ("AIFF Audio Files", "*.aiff"),
+                                                   ("MPEG Audio Files", "*.mpeg"),
+                                                   ("Protected Audio Files", "*.m4a"),
+                                                   ("all", "*.*")])
+        return self.songpath
 
 
     def getSongTitle(self):
         """Show Song Song Name/Title."""
         try:
-            tags = ID3(self.songpath)
-            self.SongTitleName = f"{tags.getall('TIT2')[0][0]}"
+            self.SongTitleName = f"{self.ID3HNDLR.getall('TIT2')[0][0]}"
         except IndexError as e:
             self.SongTitleName = ''
         except ID3NoHeaderError as e:
@@ -270,11 +264,24 @@ class MP3TagYourSong(object):
         return self.SongTitleName
 
 
+    def getSongArtist(self):
+        """Show Song Artist Name."""
+        try:
+            self.SongArtistName = f"{self.ID3HNDLR.getall('TPE1')[0][0]}"
+        except IndexError as e:
+            self.SongArtistName
+        except ID3NoHeaderError as e:
+            self.CreateMissingTag()
+            self.SongArtistName = ''
+        except Exception as e:
+            print(f"Error: {e}")
+        return self.SongArtistName
+
+
     def getSongAlbum(self):
         """Show Song Album Name."""
         try:
-            tags = ID3(self.songpath)
-            self.SongAlbumName = f"{tags.getall('TALB')[0][0]}"
+            self.SongAlbumName = f"{self.ID3HNDLR.getall('TALB')[0][0]}"
         except IndexError as e:
             self.SongAlbumName = ''
         except ID3NoHeaderError as e:
@@ -288,8 +295,7 @@ class MP3TagYourSong(object):
     def getSongPlayCount(self):
         """Show Song Play Count."""
         try:
-            tags = ID3(self.songpath)
-            self.SongPlayCount = f"{tags.getall('PCNT')[0].count}"
+            self.SongPlayCount = f"{self.ID3HNDLR.getall('PCNT')[0].count}"
         except IndexError as e:
             self.SongPlayCount = 0
         except ID3NoHeaderError as e:
@@ -300,12 +306,24 @@ class MP3TagYourSong(object):
         return self.SongPlayCount
 
 
+    def getSongYear(self):
+        """Show Song Play Count."""
+        try:
+            self.SongYear = f"{self.ID3HNDLR.getall('TYER')[0][0]}"
+        except IndexError as e:
+            self.SongYear = 0
+        except ID3NoHeaderError as e:
+            self.CreateMissingTag()
+            self.SongYear = 0
+        except Exception as e:
+            print(f"Error: {e}")
+        return self.SongYear
+
+
     def getSongSyncedLyrics(self):
         """Show Synced Lyrics."""
         try:
-            tags = ID3(self.songpath)
-            # print(f"{tags.get('SYLT::eng')}")
-            self.SongSyncLyrcs = tags.get('SYLT::eng')
+            self.SongSyncLyrcs = self.ID3HNDLR.get('SYLT::eng')
         except IndexError as e:
             self.SongSyncLyrcs = ''
         except ID3NoHeaderError as e:
@@ -319,9 +337,8 @@ class MP3TagYourSong(object):
     def getSongUnSyncedLyrics(self):
         """Show UnSynced Lyrics."""
         try:
-            tags = ID3(self.songpath)
-            self.SongPlainLyrcs = tags.get('USLT')
-            print(f"{tags.get('USLT')}")
+            self.SongPlainLyrcs = self.ID3HNDLR.get('USLT')
+            print(f"{self.ID3HNDLR.get('USLT')}")
         except IndexError as e:
             self.SongPlainLyrcs = ''
         except ID3NoHeaderError as e:
@@ -331,72 +348,90 @@ class MP3TagYourSong(object):
             print(f"Error: {e}")
         return self.SongPlainLyrcs
 
+    def getSongDuration(self):
+        self.SetID3Handle()
+        return self.MP3HNDLR.info.length
+
+
     # =====================================================================================================================
     # Tag Setters
     # =====================================================================================================================
 
 
-    def setSongArtist(self, ArtistName):
+    def SetMP3Handle(self):
         """
-        Input: filename, ArtistName
-        Example: setSongArtist('song', 'Artist Name']
+            Input: (None)
+            Example: SetMP3Handle(self)
+        """
+        self.MP3HNDLR = MP3(self.songpath)
+        return self.MP3HNDLR
+
+
+    def SetID3Handle(self):
+        """
+            Input: (None)
+            Example: SetID3Handle(self)
+        """
+        self.ID3HNDLR = ID3(self.songpath)
+        return self.ID3HNDLR
+
+
+    def setSongArtist(self, ArtistName: str):
+        """
+            Input: filename, ArtistName (STRING)
+            Example: setSongArtist('song', 'Artist Name')
         """
         self.SongArtistName = ArtistName
-        tags = ID3(self.songpath)
-        tags.add(TPE1(encoding=3, text=[ArtistName]))
-        tags.save(v1=50000000, v2_version=4, v23_sep='/')
+        self.ID3HNDLR.add(TPE1(encoding=Encoding.UTF16, text=[ArtistName]))
+        self.ID3HNDLR.save(v1=1, v2_version=4, v23_sep='/')
 
 
-    def setSongAlbum(self, AlbumName):
+    def setSongAlbum(self, AlbumName: str):
         """
-        Input: filename, AlbumName
-        Example: setSongAlbum('song', 'Album Name']
+            Input: filename, AlbumName (STRING)
+            Example: setSongAlbum('song', 'Album Name')
         """
-        tags = ID3(self.songpath)
-        tags.add(TALB(encoding=3, text=[AlbumName]))
-        tags.save(v1=1, v2_version=4, v23_sep='/')
+        self.SongAlbumName = AlbumName
+        self.ID3HNDLR.add(TALB(encoding=Encoding.UTF16, text=[AlbumName]))
+        self.ID3HNDLR.save(v1=1, v2_version=4, v23_sep='/')
 
 
-    def setSongTitle(self, SongTitle):
+    def setSongTitle(self, SongTitle: str):
         """
-        Input: filename, SongTitle
-        Example: setSongTitle('song', 'Song Title']
+            Input: filename, SongTitle (STRING)
+            Example: setSongTitle('song', 'Song Title')
         """
-        tags = ID3(self.songpath)
-        tags.add(TIT2(encoding=3, text=[SongTitle]))
-        tags.save(v1=1, v2_version=4, v23_sep='/')
+        self.ID3HNDLR.add(TIT2(encoding=Encoding.UTF16, text=[SongTitle]))
+        self.ID3HNDLR.save(v1=1, v2_version=4, v23_sep='/')
 
 
-    def setSongPlayCount(self, PlayCount):
+    def setSongPlayCount(self, PlayCount: int):
         """
-        Input: filename, PlayCount
-        Example: setSongPlayCount('song', 1531]
+            Input: filename, PlayCount (INTEGER)
+            Example: setSongPlayCount('song', 1531]
         """
-        tags = ID3(self.songpath)
-        tags.add(PCNT(encoding=3, count=PlayCount))
-        tags.save(v1=1, v2_version=4, v23_sep='/')
+        self.ID3HNDLR.add(PCNT(encoding=3, count=PlayCount))
+        self.ID3HNDLR.save(v1=1, v2_version=4, v23_sep='/')
 
 
     def setSongSyncedLyrics(self, sync_lyrics : list):
         """
-        Input: filename, sync_lyrics  list((TupledPairs, 1042), (TupledPairs, 2042), (TupledPairs, 3042))
-        Example: setSongSyncedLyrics('song', [('Some Lyics at time in MilliSeconds', 1000), ('Some More Lyics, add as many as you'd like, 2000)]
+            Input: filename, sync_lyrics  list((TupledPairs, 1042), (TupledPairs, 2042), (TupledPairs, 3042))
+            Example: setSongSyncedLyrics('song', [('Some Lyics at time in MilliSeconds', 1000), ('Some More Lyics, add as many as you'd like, 2000)]
         """
-        tags = ID3(self.songpath)
         slrcs = sync_lyrics
-        tags.setall("SYLT", [SYLT(encoding=Encoding.UTF16, lang='eng', format=2, type=1, text=slrcs)])
-        tags.save(v1=1, v2_version=4, v23_sep='/')
+        self.ID3HNDLR.setall("SYLT", [SYLT(encoding=Encoding.UTF16, lang='eng', format=2, type=1, text=slrcs)])
+        self.ID3HNDLR.save(v1=1, v2_version=4, v23_sep='/')
 
 
     def setSongUnSyncedLyrics(self, lyrics : str):
         """
-        Input: filename, sync_lyrics (String)
-        Example: setSongUnSyncedLyrics('song', 'Some Lyics add Some More Lyics, add as many as you'd like')
+            Input: filename, sync_lyrics (String)
+            Example: setSongUnSyncedLyrics('song', 'Some Lyics add Some More Lyics, add as many as you'd like')
         """
-        tags = ID3(self.songpath)
         slrcs = lyrics
-        tags.setall("USLT", [USLT(encoding=Encoding.UTF16, lang='eng', format=2, type=1, text=slrcs)])
-        tags.save(v1=1, v2_version=4, v23_sep='/')
+        self.ID3HNDLR.setall("USLT", [USLT(encoding=Encoding.UTF16, lang='eng', format=2, type=1, text=slrcs)])
+        self.ID3HNDLR.save(v1=1, v2_version=4, v23_sep='/')
 
 
 if __name__ == '__main__':
