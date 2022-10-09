@@ -26,61 +26,34 @@ from os.path import splitext
 from pygame import mixer
 from random import shuffle
 from time import sleep
-from tkinter import *
-from tkinter import filedialog
-from tkinter import messagebox
-from tkinter import Tk, BOTH, Listbox, StringVar, END
-from tkinter import ttk
-from tkinter.filedialog import askopenfilename
-from tkinter.ttk import Frame, Label
-from ttkthemes import themed_tk as tk
-import customtkinter
-import mp3TagEditor
+import glob
+from mp3TagEditor import MP3TagYourSong
+import PySimpleGUI as sg
 import random
 import threading
 import time
 import tkinter
 
 # ========================================================================
-# Load Custom Tkinter Theme Settings =====================================
-# ========================================================================
-customtkinter.set_appearance_mode("dark")  # Modes: system (default), light, dark
-customtkinter.set_default_color_theme("dark-blue")  # Themes: blue (default), dark-blue, green
-
-# ========================================================================
 # Load Emoji Characters In Place Of Buttons ==============================
 # ========================================================================
-MUSICNOTE = '\U0001F3B5'
 BACKARROW = '\U000023EA'
-FORWARROW = '\U000023E9'
 PLAYBUTTN = '\U000025B6\U0000FE0F'
-STOPBUTTN = '\U000023F9'
-REPEATBTN = '\U0001F501'
+FORWARROW = '\U000023E9'
 PAUSEBUTN = '\U000023F8'
+STOPBUTTN = '\U000023F9'
+MUSICNOTE = '\U0001F3B5'
+REPEATBTN = '\U0001F501'
 SHFLLBUTN = '\U0001F500'
 MUTEBUTTN = '\U0001F507'
 SPKRBUTTN = '\U0001F50A'
 INFOBUTTN = '\U00002139'
 
-class App(customtkinter.CTk):
+class App(object):
     """JayRizzo Music Player."""
     def __init__(self):
         """JayRizzo Music Player Initial Launch Setup."""
-        # ========================================================================
-        # ======================== Initialize the Tkinter ========================
-        # ========================================================================
         super().__init__()
-        self.read_window(self)
-        self.x = self.winfo_width()
-        self.y = self.winfo_height()
-        self.screen_x = self.winfo_screenwidth()
-        self.screen_y = self.winfo_screenheight()
-        self.screen_x_half = int(self.winfo_screenwidth()/2 - self.x/2)
-        self.screen_y_half = int(self.winfo_screenheight()/2 - self.y/2)
-        self.title(f"{MUSICNOTE} JayRizzo MP3 Player {MUSICNOTE}")
-        self.iconbitmap(r'mp_images/JayRizzo.ico')
-        self.CWDIR = getcwd()
-
         # ========================================================================
         # ========================= Initialize the Mixer =========================
         # ========================================================================
@@ -93,499 +66,147 @@ class App(customtkinter.CTk):
         self.CURSELECTDSONG             = ''                    # Current Selected Song Time
         self.CURSONGTIME                = 0                     # Current Song Time Song
         self.SLIDERTIME                 = 0                     # Current Song Time Slider
-        self.SONGLENGTH                 = 0                     # Current Song Length Slider
+        self.SONGLENGTH                 = 0                   # Default Song Length Slider
         self.TOTALSONGL                 = 0                     # Total Time For All Songs
-        self.volume                     = 100.0                 # Set Initial Volume For PyGame Player
+        self.VOLUME                     = 100.0                 # Set Initial Volume For PyGame Player
+        self.PLAYER                     = ''
         self.FILENAME                   = ''
+        self.SONGNAME                   = ''
         self.FULLFILEPATH               = ''
-        self.MP3TAGHNDLSONG             = []
-        # ========================================================================
-        # =================== Initialize the Current Song Meta ===================
-        # ========================================================================
-        self.CURSONGARTIST              = None
-        # ========================================================================
-        # ======================== Create Menu Bar & Items =======================
-        # ========================================================================
-        self.menubar        = Menu(master=self)
-        self.config(menu=self.menubar)
-        self.fileMenu       = Menu(self.menubar)
+        self.MP3SONGARTIST              = ''
 
         # ========================================================================
-        # ========================= Create SubMenu Items =========================
+        # ==================== Initialize the SimpleGUI Layout ===================
         # ========================================================================
-        # Create the SubMenu
-        self.fileMenu       = Menu(self.menubar, tearoff=0)
-        self.menubar.add_cascade(label=f"File", menu=self.fileMenu)
+        self.theme = sg.ChangeLookAndFeel('Dark')
+        self.layout                     = [
+                                            [sg.Text(f'Song: {self.SONGNAME}', font=("Helvetica", 25), key = "-SONGNAME-", enable_events=True, justification='center')],
+                                            [sg.FileBrowse(size=(17, 1), key="-MP3SONG-", enable_events=True, file_types=(("MP3 files", "*.mp3"),))],
+                                           [
+                                               sg.Button(f"{PLAYBUTTN}", key="-PLAYSONG-" , disabled = True, font=("Helvetica", 50), enable_events=True),
+                                               sg.Button(f"{PAUSEBUTN}", key="-PAUSESONG-", disabled = True, font=("Helvetica", 50), enable_events=True),
+                                               sg.Button(f"{STOPBUTTN}", key="-STOPSONG-" , disabled = True, font=("Helvetica", 50), enable_events=True),
+                                               sg.Text(f'Song Time: {self.CURSONGTIME} of {self.SONGLENGTH}', key = "-SONGLENGTHDURATIONTEXT-")
+                                           ],
+                                           [sg.Listbox(['a','b','c'], size=(70, 10), key="-PLAYLISTBOX-", enable_events=True)],
 
-        self.editMenu       = Menu(self.menubar, tearoff=0)
-        self.menubar.add_cascade(label=f"Edit", menu=self.editMenu)
-
-        self.songMenu       = Menu(self.menubar, tearoff=0)
-        self.menubar.add_cascade(label=f"{MUSICNOTE} Song", menu=self.songMenu)
-
-        self.helpMenu       = Menu(self.menubar, tearoff=0)
-        self.menubar.add_cascade(label=f"{INFOBUTTN} Help", menu=self.helpMenu)
-
-        # ========================================================================
-        # =============== Create Commands for Menu & Sub-Menu Items ==============
-        # ========================================================================
-        self.fileMenu.add_command(label="Add Songs To Playlist File", command=self.AddManySongToPlaylist)
-        self.fileMenu.add_command(label="Exit", command=self.destroy)
-        self.editMenu.add_command(label="Edit Test", command=self.about_us)
-        self.songMenu.add_command(label=f"{PLAYBUTTN} Play", command=self.play_music)
-        self.songMenu.add_command(label=f"{PAUSEBUTN} Pause", command=self.pause_music)
-        self.songMenu.add_command(label=f"{BACKARROW} Rewind", command=self.rewind_music)
-        self.songMenu.add_command(label=f"{FORWARROW} Rewind", command=self.skip_music)
-        self.songMenu.add_command(label=f"{STOPBUTTN} Stop", command=self.stop_music)
-        self.songMenu.add_command(label=f"{MUTEBUTTN} Mute", command=self.mute_music)
-        # self.songMenu.add_command(label=f"{INFOBUTTN} Song Details", command=self.show_details)
-        self.songMenu.add_command(label=f"{REPEATBTN} Repeat", command=self.about_us)
-        self.songMenu.add_command(label=f"{SHFLLBUTN} Shuffle", command=self.about_us)
-        self.helpMenu.add_command(label=f"{INFOBUTTN} About Us", command=self.about_us)
-        self.helpMenu.add_command(label=f"{INFOBUTTN} Window Info", command=self.window_info)
-
-        # ========================================================================
-        # ===================== Create One Main Canvas ===========================
-        # ========================================================================
-        self.MainCanvas=customtkinter.CTkCanvas(self, bg="black", height=self.y, width=self.x)
-        self.MainCanvas.grid(rowspan=2, columnspan=4, sticky="nswe")
-
-        # ========================================================================
-        # ===================== Create All Four Column Frames ====================
-        # ========================================================================
-        self.grid_columnconfigure(1, weight=1)
-        self.grid_rowconfigure(1, weight=1)
-        self.FrameLeft = customtkinter.CTkFrame(master=self.MainCanvas,  corner_radius=15)
-        self.FrameLeft.grid(row=0, column=0, rowspan=1, columnspan=1, sticky="nswe")
-        self.FrameCenterLeft = customtkinter.CTkFrame(master=self.MainCanvas,  corner_radius=15)
-        self.FrameCenterLeft.grid(row=0, column=1, rowspan=1, columnspan=1, sticky="nswe")
-        self.FrameCenterRight = customtkinter.CTkFrame(master=self.MainCanvas, corner_radius=15)
-        self.FrameCenterRight.grid(row=0, column=2, rowspan=1, columnspan=1, sticky="nswe")
-        self.FrameRight = customtkinter.CTkFrame(master=self.MainCanvas, corner_radius=15)
-        self.FrameRight.grid(row=0, column=3, rowspan=1, columnspan=1, sticky="nswe")
-
-        # ========================================================================
-        # ========================= Initialize the Status Bar ====================
-        # ========================================================================
-        self.FrameBottomBar = customtkinter.CTkLabel(master=self.MainCanvas, relief=SUNKEN, anchor=customtkinter.E)
-        self.FrameBottomBar.grid(row=1, column=0, columnspan=4, sticky="nswe")
-          # pack(side=customtkinter.BOTTOM, fill=customtkinter.X)
-        # ========================================================================
-        # ====================== Populate First Frame (LEFT) =====================
-        # ========================================================================
-        self.Label1  = customtkinter.CTkLabel(master=self.FrameLeft, text=f"{MUSICNOTE} RizzoBox {MUSICNOTE}", text_font=("Roboto Medium", -16))  # font name and size in px.grid(row=1, column=0, padx=10, pady=10)
-        self.button_1 = customtkinter.CTkButton(master=self.FrameLeft, text="Add Song To Playlist", command=self.AddManySongToPlaylist).grid(row=2, column=0, padx=10, pady=10)
-        self.button_2 = customtkinter.CTkButton(master=self.FrameLeft, text="Load Playlist", command=self.button_event).grid(row=3, column=0, padx=10, pady=10)
-        self.button_3 = customtkinter.CTkButton(master=self.FrameLeft, text="Save Playlist", command=self.button_event).grid(row=4, column=0, padx=10, pady=10)
-        self.button_4 = customtkinter.CTkButton(master=self.FrameLeft, text="Create Playlist", command=self.button_event).grid(row=5, column=0, padx=10, pady=10)
-        self.Labelmode = customtkinter.CTkLabel(master=self.FrameLeft, text="Appearance Mode:").grid(row=9, column=0, padx=10, pady=10, sticky="w")
-        self.scaling_optionemenu = customtkinter.CTkOptionMenu(self.FrameLeft, values=["75%", "80%", "85%", "90%", "95%", "100%", "105%", "110%", "115%", "120%", "125%"], command=self.change_scaling)
-        self.scaling_optionemenu.grid(row=10, column=0, padx=10, pady=10, sticky="w")
-        self.optionmenu_1 = customtkinter.CTkOptionMenu(master=self.FrameLeft, values=["Light", "Dark", "System"], command=self.change_appearance_mode)
-        self.optionmenu_1.grid(row=11, column=0, padx=10, pady=10, sticky="w")
-        # self.optionmenu_2 = customtkinter.CTkOptionMenu(master=self.FrameLeft, values=["blue", "dark-blue", "green"], command=self.change_theme)
-        # self.optionmenu_2.grid(row=12, column=0, padx=10, pady=10, sticky="w")
-
-        # ========================================================================
-        # ==================== Populate Second Frame (CENTER) ====================
-        # ========================================================================
-        self.FrameCenterLeft.rowconfigure(1)
-        self.FrameCenterLeft.columnconfigure(0)
-
-        self.Labelinfo_1 = customtkinter.CTkLabel(master=self.FrameCenterLeft, text=f"Time: {self.SONGLENGTH}", height=self.screen_y_half, corner_radius=6, fg_color=("white", "gray38"), justify=tkinter.LEFT)
-        self.Labelinfo_1.grid(row=0, column=0, rowspan=1, columnspan=6, sticky="new", padx=10, pady=(10, 0))
-
-        self.ProgressBar = customtkinter.CTkSlider(master=self.FrameCenterLeft, orient="horizontal", command=self.set_pos, from_=0, to=self.SONGLENGTH+1)
-        self.ProgressBar.grid(row=1, column=0, rowspan=1, columnspan=6, sticky="new", padx=10, pady=10)
-        self.ProgressBarLabel = customtkinter.CTkLabel(master=self.FrameCenterLeft, text=50, width=30, height=25)
-        self.ProgressBarLabel.grid(row=1, column=1, rowspan=1, columnspan=1, padx=( 0,  0 ), pady=( 0, 0 ), sticky="e")
-
-        # ========================================================================
-        # ======================== Center-Bottom Buttons =========================
-        # ========================================================================
-        self.button_0 = customtkinter.CTkButton(master=self.FrameCenterLeft, text_font=("Consolas", 45), text=f"{PAUSEBUTN}", corner_radius=60, command=self.pause_music).grid( sticky='n', row=2, column=0, rowspan=1, columnspan=1, padx=5, pady=5)
-        self.button_1 = customtkinter.CTkButton(master=self.FrameCenterLeft, text_font=("Consolas", 45), text=f"{BACKARROW}", corner_radius=60, command=self.button_event).grid( sticky='n', row=2, column=1, rowspan=1, columnspan=1, padx=5, pady=5)
-        self.button_2 = customtkinter.CTkButton(master=self.FrameCenterLeft, text_font=("Consolas", 45), text=f"{PLAYBUTTN}", corner_radius=60, command=self.play_music).grid(   sticky='n', row=2, column=2, rowspan=1, columnspan=1, padx=5, pady=5)
-        self.button_3 = customtkinter.CTkButton(master=self.FrameCenterLeft, text_font=("Consolas", 45), text=f"{FORWARROW}", corner_radius=60, command=self.skip_music).grid( sticky='n', row=2, column=3, rowspan=1, columnspan=1, padx=5, pady=5)
-        self.button_4 = customtkinter.CTkButton(master=self.FrameCenterLeft, text_font=("Consolas", 45), text=f"{STOPBUTTN}", corner_radius=60, command=self.stop_music).grid( sticky='n', row=2, column=4, rowspan=1, columnspan=1, padx=5, pady=5)
-        self.button_5 = customtkinter.CTkButton(master=self.FrameCenterLeft, text_font=("Consolas", 45), text=f"{SHFLLBUTN}", corner_radius=60, command=self.button_event).grid( sticky='n', row=3, column=1, rowspan=1, columnspan=1, padx=5, pady=5)
-        self.button_6 = customtkinter.CTkButton(master=self.FrameCenterLeft, text_font=("Consolas", 45), text=f"{MUTEBUTTN}", corner_radius=60, command=self.mute_music,bg='systemTransparent').grid( sticky='n', row=3, column=2, rowspan=1, columnspan=1, padx=5, pady=5)
-        # self.switch_3 = customtkinter.CTkSwitch(master=self.FrameCenterLeft, text_font=("Consolas", 25), text=f"{REPEATBTN} Repeat", corner_radius=60, command=self.repeat_music).grid(sticky='ns', row=3, column=3, pady=15, padx=20)
-        self.button_7 = customtkinter.CTkButton(master=self.FrameCenterLeft, text_font=("Consolas", 45), text=f"{REPEATBTN}", corner_radius=60, command=self.repeat_music).grid( row=3, column=3, rowspan=1, columnspan=1, padx=5, pady=5)
-
-        # ========================================================================
-        # ====================== Center-Right Volume Scroll ======================
-        # ========================================================================
-        self.volume_slider = customtkinter.CTkSlider(master=self.FrameCenterLeft, orient="vertical", command=self.set_vol, from_=0, to=1, number_of_steps=1000)
-        self.volume_slider.grid(          row=1, column=5, rowspan=2, columnspan=1, padx=(10, 10), pady=(40, 10), sticky="n")
-        self.volume_label = customtkinter.CTkLabel(master=self.FrameCenterLeft, text=50, width=30, height=25)
-        self.volume_label.grid(row=3, column=5, rowspan=1, columnspan=1, padx=( 0,  0), pady=( 0, 0), sticky="n")
-
-        # ========================================================================
-        # ===================== Populate Third Frame (RIGHT) =====================
-        # ========================================================================
-        self.FrameCenterRight.rowconfigure((0, 1, 2, 3), weight=1)
-        self.FrameCenterRight.columnconfigure((0, 2), weight=2)
-        self.FrameCenterRight = customtkinter.CTkFrame(master=self.FrameCenterRight)
-        self.FrameCenterRight.grid(row=0, column=1, rowspan=1, columnspan=2, padx=10, pady=10, sticky="wnse")
-        self.LabelArtist_header = customtkinter.CTkLabel(master=self.FrameCenterRight, text=f" {MUSICNOTE} Current Song Info: {MUSICNOTE} ", width=300, height=25, corner_radius=8).grid(row=0, rowspan=1, column=1, sticky="w")
-
-        self.LabelSongName = customtkinter.CTkLabel(master=self.FrameCenterRight, text=f"Name: ", width=120, height=20, corner_radius=8, anchor="w")
-        self.LabelSongName.grid(row=1, rowspan=1, column=1, sticky="w")
-
-        self.LabelSongArtist = customtkinter.CTkLabel(master=self.FrameCenterRight, text=f"Artist: ", width=120, height=20, corner_radius=8, anchor="w")
-        self.LabelSongArtist.grid(row=2, rowspan=1, column=1, sticky="w")
-
-        self.LabelSongComposer = customtkinter.CTkLabel(master=self.FrameCenterRight, text=f"Composer: ", width=120, height=20, corner_radius=8, anchor="w")
-        self.LabelSongComposer.grid(row=3, rowspan=1, column=1, sticky="w")
-
-        self.LabelSongAlbum = customtkinter.CTkLabel(master=self.FrameCenterRight, text=f"Album: ", width=120, height=20, corner_radius=8, anchor="w")
-        self.LabelSongAlbum.grid(row=4, rowspan=1, column=1, sticky="w")
-
-        self.LabelArtist05 = customtkinter.CTkLabel(master=self.FrameCenterRight, text=f"Grouping: ", width=120, height=20, corner_radius=8, anchor="w").grid(row=5, rowspan=1, column=1, sticky="w")
-        self.LabelArtist06 = customtkinter.CTkLabel(master=self.FrameCenterRight, text=f"Work: ", width=120, height=20, corner_radius=8, anchor="w").grid(row=6, rowspan=1, column=1, sticky="w")
-        self.LabelArtist07 = customtkinter.CTkLabel(master=self.FrameCenterRight, text=f"Movement Number: ", width=120, height=20, corner_radius=8, anchor="w").grid(row=7, rowspan=1, column=1, sticky="w")
-        self.LabelArtist08 = customtkinter.CTkLabel(master=self.FrameCenterRight, text=f"Movement Count: ", width=120, height=20, corner_radius=8, anchor="w").grid(row=8, rowspan=1, column=1, sticky="w")
-        self.LabelArtist09 = customtkinter.CTkLabel(master=self.FrameCenterRight, text=f"Movement Name: ", width=120, height=20, corner_radius=8, anchor="w").grid(row=9, rowspan=1, column=1, sticky="w")
-        self.LabelArtist10 = customtkinter.CTkLabel(master=self.FrameCenterRight, text=f"Genre: ", width=120, height=20, corner_radius=8, anchor="w").grid(row=10, rowspan=1, column=1, sticky="w")
-        self.LabelArtist11 = customtkinter.CTkLabel(master=self.FrameCenterRight, text=f"Size: ", width=120, height=20, corner_radius=8, anchor="w").grid(row=11, rowspan=1, column=1, sticky="w")
-        self.LabelArtist12 = customtkinter.CTkLabel(master=self.FrameCenterRight, text=f"Time: ", width=120, height=20, corner_radius=8, anchor="w").grid(row=12, rowspan=1, column=1, sticky="w")
-        self.LabelArtist13 = customtkinter.CTkLabel(master=self.FrameCenterRight, text=f"Disc Number: ", width=120, height=20, corner_radius=8, anchor="w").grid(row=13, rowspan=1, column=1, sticky="w")
-        self.LabelArtist14 = customtkinter.CTkLabel(master=self.FrameCenterRight, text=f"Disc Count: ", width=120, height=20, corner_radius=8, anchor="w").grid(row=14, rowspan=1, column=1, sticky="w")
-        self.LabelArtist15 = customtkinter.CTkLabel(master=self.FrameCenterRight, text=f"Track Number: ", width=120, height=20, corner_radius=8, anchor="w").grid(row=15, rowspan=1, column=1, sticky="w")
-        self.LabelArtist16 = customtkinter.CTkLabel(master=self.FrameCenterRight, text=f"Track Count: ", width=120, height=20, corner_radius=8, anchor="w").grid(row=16, rowspan=1, column=1, sticky="w")
-        self.LabelArtist17 = customtkinter.CTkLabel(master=self.FrameCenterRight, text=f"Year: ", width=120, height=20, corner_radius=8, anchor="w").grid(row=17, rowspan=1, column=1, sticky="w")
-        self.LabelArtist18 = customtkinter.CTkLabel(master=self.FrameCenterRight, text=f"Date Modified: ", width=120, height=20, corner_radius=8, anchor="w").grid(row=18, rowspan=1, column=1, sticky="w")
-        self.LabelArtist19 = customtkinter.CTkLabel(master=self.FrameCenterRight, text=f"Date Added: ", width=120, height=20, corner_radius=8, anchor="w").grid(row=19, rowspan=1, column=1, sticky="w")
-        self.LabelArtist20 = customtkinter.CTkLabel(master=self.FrameCenterRight, text=f"Bit Rate: ", width=120, height=20, corner_radius=8, anchor="w").grid(row=20, rowspan=1, column=1, sticky="w")
-        self.LabelArtist21 = customtkinter.CTkLabel(master=self.FrameCenterRight, text=f"Sample Rate: ", width=120, height=20, corner_radius=8, anchor="w").grid(row=21, rowspan=1, column=1, sticky="w")
-        self.LabelArtist22 = customtkinter.CTkLabel(master=self.FrameCenterRight, text=f"Volume Adjustment: ", width=120, height=20, corner_radius=8, anchor="w").grid(row=22, rowspan=1, column=1, sticky="w")
-        self.LabelArtist23 = customtkinter.CTkLabel(master=self.FrameCenterRight, text=f"Kind: ", width=120, height=20, corner_radius=8, anchor="w").grid(row=23, rowspan=1, column=1, sticky="w")
-        self.LabelArtist24 = customtkinter.CTkLabel(master=self.FrameCenterRight, text=f"Equalizer: ", width=120, height=20, corner_radius=8, anchor="w").grid(row=24, rowspan=1, column=1, sticky="w")
-        self.LabelArtist25 = customtkinter.CTkLabel(master=self.FrameCenterRight, text=f"Comments: ", width=120, height=20, corner_radius=8, anchor="w").grid(row=25, rowspan=1, column=1, sticky="w")
-        self.LabelArtist26 = customtkinter.CTkLabel(master=self.FrameCenterRight, text=f"Plays: ", width=120, height=20, corner_radius=8, anchor="w").grid(row=26, rowspan=1, column=1, sticky="w")
-        self.LabelArtist27 = customtkinter.CTkLabel(master=self.FrameCenterRight, text=f"Last Played: ", width=120, height=20, corner_radius=8, anchor="w").grid(row=27, rowspan=1, column=1, sticky="w")
-        self.LabelArtist28 = customtkinter.CTkLabel(master=self.FrameCenterRight, text=f"Skips: ", width=120, height=20, corner_radius=8, anchor="w").grid(row=28, rowspan=1, column=1, sticky="w")
-        self.LabelArtist29 = customtkinter.CTkLabel(master=self.FrameCenterRight, text=f"Last Skipped: ", width=120, height=20, corner_radius=8, anchor="w").grid(row=29, rowspan=1, column=1, sticky="w")
-        self.LabelArtist30 = customtkinter.CTkLabel(master=self.FrameCenterRight, text=f"My Rating: ", width=120, height=20, corner_radius=8, anchor="w").grid(row=30, rowspan=1, column=1, sticky="w")
-        self.LabelArtist31 = customtkinter.CTkLabel(master=self.FrameCenterRight, text=f"Location: ", width=120, height=20, corner_radius=8, anchor="w").grid(row=31, rowspan=1, column=1, sticky="w")
-
-        # ========================================================================
-        # ===================== Populate Fourth Frame (RIGHT) ====================
-        # ========================================================================
-        self.FrameRight.columnconfigure(1, weight=0)
-        self.PLAYLSTBOX = Listbox(master=self.FrameRight, yscrollcommand=True)
-        self.PLAYLSTBOX.grid(row=0, column=3, rowspan=1, columnspan=1, padx=10, pady=10, sticky="nsew")
-
-        # ====================================================================================================================
-        # ===================== Set Default Values ===========================================================================
-        # ====================================================================================================================
-        self.scaling_optionemenu.set("75%")
-        self.optionmenu_1.set("Dark")
-        self.ProgressBar.set(0)
-        self.volume_slider.set(100)
-        self.volume_label.set_text(100)
-
-    # ========================================================================
-    # ===================== BEGIN Define Functions BEGIN =====================
-    # ========================================================================
-
-    def showMenu(self, e):
-        """Menu Setup."""
-        self.menu.post(e.x_root, e.y_root)
-
-    def about_us(self):
-        """Menu -> About Us Setup."""
-        messagebox.showinfo('About Player', 'This is a music player build using Python Tkinter by @JayRizzo')
-
-    def on_closing(self, event=0):
-        """JayRizzo Music Player Exit Behavior. https://stackoverflow.com/a/65657779/1896134 ."""
-        close = messagebox.askokcancel("Close", "Are You Sure You Want To Close The Program?")
-        if close:
-            print(f"Closed: {close}")
-            self.stop_music()
-            self.saveConfig()
-            self.destroy()
-        else:
-            print(f"Closed: {close}")
-        return
-
-    def set_pos(self, x):
-        x = round(x * 1000)
-        self.ProgressBarLabel.set_text(x)
-        mixer.music.set_pos(x)
+                                            [sg.Slider(range=(0, 100.0), size=(60, 20), orientation='h', key='-SONGSLIDERPOS-', disabled = True, disable_number_display = True, enable_events=True, tick_interval=60)],
+                                          ]
+        self.window                     = sg.Window("MP3 Player", self.layout, font='Arial 18', grab_anywhere=False)
 
 
-    def get_pos(self):
-        x = mixer.music.get_pos()
-        print(x)
-        return x
+    def DurationFromSeconds(self, s=0):
+        """
+            Convert Seconds to Human Readable Time Format.
+            INPUT : s (AKA: Seconds)
+            OUTPUT: 00:00:00
+        """
+        m, s        = divmod(s, 60)
+        h, m        = divmod(m, 60)
+        d, h        = divmod(h, 24)
+        y, d        = divmod(d, 365)
+        PRINTZTIME  = f"{h:02.0f}:{m:02.0f}:{s:02.0f}"
+        return PRINTZTIME
 
-    def SongPositionUpdate(self, x):
-        """JayRizzo Music Player Update Song Clock."""
-        now = time.strftime("%H:%M:%S")
-        self.ProgressBarLabel.set_text(now)
-        self.after(1000, self.update_clock)
-        return
+    def ImageButton(self, title, key):
+        return sg.Button(title, button_color=('#F0F0F0', '#F0F0F0'),
+                    border_width=0, key=key)
 
+    def loadSong(self, filename):
+        mixer.music.load(filename)
+        self.setSongLength(filename)
 
+    def getSongName(self):
+        return self.SONGNAME
 
-    def setCurrentSongPath(self, songpath):
-        """JayRizzo Music Player Get Current Selected Song Length."""
-        self.FULLFILEPATH = songpath
-        self.FILENAME = basename(self.FULLFILEPATH)
-        self.MP3TAGHNDLSONG = MP3(self.FULLFILEPATH)
-        print(f"setCurrentSongPath(): songpath: {songpath}")
-        print(f"setCurrentSongPath(): self.FULLFILEPATH: {self.FULLFILEPATH}")
-        print(f"setCurrentSongPath(): self.FILENAME: {self.FILENAME}")
-        print(f"setCurrentSongPath(): self.PLAYLSTPTH: {self.PLAYLSTPTH}")
-        return
+    def getSongMetaData(self, filename):
+        self.MP3SONGARTIST = MP3TagYourSong(self.FILENAME).getSongArtist()
+        return self.MP3SONGARTIST
 
-    def AddManySongToPlaylist(self):
-        songs = filedialog.askopenfilenames(initialdir=f"{self.CWDIR}/Music/", title="Choose A Selection Of Songs", filetypes=(("mp3 files", "*.mp3"), ))
-        for song in songs:
-            index = 1
-            self.FULLFILEPATH = song
-            song = song.replace(f"{self.CWDIR}/Music/","")
-            song = song.replace(f".mp3","")
-            song = song.replace(f"_"," ")
-            self.PLAYLSTPTH.insert(index, self.FULLFILEPATH)
-            # self.PLAYLSTBOX.insert(index, song)
-            self.PLAYLSTBOX.insert(self.PLAYLSTBOX.size(), song)
-            index += 1
-            print(song)
-            print(self.FULLFILEPATH)
-            print(self.PLAYLSTPTH)
-            print(self.PLAYLSTBOX)
-            mixer.music.queue(self.FULLFILEPATH)
+    def setSongName(self, filename):
+        self.SONGNAME = basename(filename).split('/')[0].split('.')[0]
+        self.window['-SONGNAME-'].update(self.SONGNAME)
+        return self.SONGNAME
 
-        # self.setCurrentSongPath(songs[0])
-        self.PLAYLSTBOX.select_set(0)  #  This only sets focus on the first item.
+    def getSongLength(self, filename):
+        song = MP3(filename)
+        print(song.info.length)
+        return song.info.length
 
-    def onSelect(self, val):
-        self.sender = self.val.widget
-        self.idx = sender.curselection()
-        self.value = sender.get(self.idx)
-        self.var.set(self.value)
+    def setSongLength(self, filename):
+        song = MP3(filename)
+        self.SONGLENGTH = song.info.length
+        return self.SONGLENGTH
 
-    # ========================================================================
-    # ================== BEGIN Music Buttons BEGIN ===========================
-    # ========================================================================
+    def playSong(self):
+        mixer.music.play()
 
-    def play_music(self):
-        try:
-            if self.PAUSED:
-                self.pause_music()
-                self.PAUSED = False
-                self.STOPPED = False
-            elif self.PLAYLSTBOX.curselection() is None:
-                warn("No Song Loaded or Selected.")
-            else:
-                self.stop_music()
-                self.CURSELECTDSONG = self.PLAYLSTBOX.curselection()
-                self.CURSELECTDSONG = int(self.CURSELECTDSONG[0])
-                play_it = self.PLAYLSTPTH[self.CURSELECTDSONG]
-                mixer.music.load(play_it)
-                mixer.music.play()
-                a = MP3TagYourSong(play_it)
-                self.SONGLENGTH = a.SongDuration
-                self.LabelSongArtist.set_text(f"Artist Name: {a.SongArtistName}")
-                self.LabelSongAlbum.set_text(f"Album Name: {a.SongAlbumName}")
-                print(f"self.SONGLENGTH: {self.SONGLENGTH}")
-                self.STOPPED = False
-        except IndexError as e:
-            print("No Song Selected to play.")
+    def getSongPos(self):
+        self.CURSONGTIME = round(int(mixer.music.get_pos()/1000), 2)
+        self.window['-SONGSLIDERPOS-'].update(self.CURSONGTIME, range=(0, self.SONGLENGTH))
+        self.window['-SONGLENGTHDURATIONTEXT-'].update(f'Song Time: {self.DurationFromSeconds(self.CURSONGTIME)} of {self.DurationFromSeconds(self.SONGLENGTH)}')
+        return self.CURSONGTIME
 
+    def setSongPos(self, t):
+        mixer.music.play(start=t)
+        self.window['-SONGSLIDERPOS-'].update(self.CURSONGTIME, range=(self.CURSONGTIME, self.SONGLENGTH))
 
-    def stop_music(self):
+    def pauseSong(self):
+        mixer.music.pause()
+        self.getSongPos()
+
+    def stopSong(self):
         mixer.music.stop()
-        self.stopped = True
 
+    def main(self):
+        # Create an self.event loop
+        while True:
+            self.event, self.values = self.window.read(500)
 
-    def pause_music(self):
-        if self.PAUSED is False:
-            mixer.music.pause()
-            self.PAUSED = True
-            self.FrameBottomBar.set_text("Music Paused")
-        else:
-            mixer.music.unpause()
-            self.PAUSED = False
-            self.FrameBottomBar.set_text("Music UnPaused")
+            if self.event == "OK" or self.event == sg.WIN_CLOSED:
+                # END PROGRAM IF USER CLOSES WINDOW
+                break
 
+            if self.event == "-MP3SONG-":
+                # Update Song Mixer Events
+                self.FILENAME = self.values['-MP3SONG-']
+                self.loadSong(self.FILENAME)
+                self.setSongName(self.FILENAME)
+                # Enable Buttons After Song Loaded Event
+                self.window['-PLAYSONG-'].update(disabled=False)
+                self.window['-PAUSESONG-'].update(disabled=False)
+                self.window['-STOPSONG-'].update(disabled=False)
+                self.window['-SONGSLIDERPOS-'].update(disabled=False)
+                self.window['-SONGSLIDERPOS-'].update(range=(0,self.SONGLENGTH))
+                print(f"02 self.event: {self.event}  self.values: {self.values} self.FILENAME: {self.FILENAME} {self.SONGNAME}")
+            if self.event == "-PLAYSONG-" and self.PLAYER is not None:
+                # Update Song Mixer
+                self.playSong()
 
-    def rewind_music(self):
-        self.play_music()
-        self.FrameBottomBar.set_text("Music Started Over")
+            if self.event == "-PLAYLISTBOX-" and self.PLAYER is not None:
+                # Update Song Mixer
+                print(f"03 PLAYLISTBOX.event: {self.event}  self.values: {self.values}")
 
+            if self.event == "-PAUSESONG-" and self.PLAYER is not None:
+                # Update Song Mixer
+                print(f"06 self.values: {self.values}")
+                self.pauseSong()
 
-    def skip_music(self):
-        "Play Next Song."
-        self.FrameBottomBar.set_text("Skipped To Next Song Ahead")
+            if self.event == "-STOPSONG-" and self.PLAYER is not None:
+                # Update Song Mixer
+                print(f"08 self.values: {self.values}")
+                self.stopSong()
 
+            if self.event == "-SONGSLIDERPOS-" and self.PLAYER is not None:
+                # Update Slider After Manual Update
+                print(f"08 self.values: {self.values}")
+                self.setSongPos(self.values['-SONGSLIDERPOS-'])
 
-    def repeat_music(self):
-        mixer.music.play(-1)
-        self.FrameBottomBar.set_text("Song On Infinite Repeat")
-
-
-    def set_vol(self, val):
-        self.volume = float(val)
-        mixer.music.set_volume(self.volume)
-        self.volume_label.set_text(str(round(round(self.volume, 3) * 100, 1)))
-        self.get_vol()
-        return self.volume
-
-
-    def get_vol(self):
-        a = self.volume * 100
-        print(f"volume: {round(a, 2)}")
-        return round(a, 2)
-
-
-    def mute_music(self):
-        previousVolume = self.volume
-        if self.MUTED:  # Unmute the music
-            mixer.music.set_volume(previousVolume)
-            self.MUTED = False
-            self.button_4 = customtkinter.CTkButton(master=self.FrameCenterLeft, text_font=("", 45), text=f"{SPKRBUTTN}", corner_radius=60, command=self.mute_music).grid(   row=3, column=2, rowspan=1, columnspan=1, padx=5, pady=0)
-        else:  # mute the music
-            mixer.music.set_volume(0)
-            self.MUTED = True
-            self.button_4 = customtkinter.CTkButton(master=self.FrameCenterLeft, text_font=("", 45), text=f"{MUTEBUTTN}", corner_radius=60, command=self.mute_music).grid(   row=3, column=2, rowspan=1, columnspan=1, padx=5, pady=0)
-
-
-    def shuffle_music(self):
-        """Delete Shuffle Songs In Playlist."""
-        self.PLAYLSTBOX = shuffle(self.PLAYLSTBOX)
-        self.button_5 = customtkinter.CTkButton(master=self.FrameCenterLeft, text_font=("Consolas", 45), text=f"{SHFLLBUTN}", corner_radius=60, command=self.button_event).grid( row=3, column=1, rowspan=1, columnspan=1, padx=5, pady=5)
-
-    # ========================================================================
-    # ========================= END Music Buttons END ========================
-    # ========================================================================
-
-    # ========================================================================
-    # ===================== BEGIN Playlist Behavior BEGIN ====================
-    # ========================================================================
-
-    def del_song(self):
-        """Delete Selected Songs From Playlist."""
-        self.CURSELECTDSONG = self.PLAYLSTBOX.curselection()
-        self.CURSELECTDSONG = int(self.CURSELECTDSONG[0])
-        self.PLAYLSTBOX.delete(self.CURSELECTDSONG)
-        self.PLAYLSTPTH.pop(self.CURSELECTDSONG)
-
-
-    # ========================================================================
-    # ================== Settings & Configuration ============================
-    # ========================================================================
-
-    def read_window(self, event):
-        """Load Window Config Placement From Last Exit."""
-        if isfile("config.ini"):
-            #Here I read the X and Y positon of the window from when I last closed it.
-            with open("config.ini", "r") as conf:
-                self.geometry(conf.read().strip())
-        else:
-            self.x = self.winfo_width()
-            self.y = self.winfo_height()
-            self.screen_x = self.winfo_screenwidth()
-            self.screen_y = self.winfo_screenheight()
-            self.screen_x_half = int(self.winfo_screenwidth()/2 - self.x/2)
-            self.screen_y_half = int(self.winfo_screenheight()/2 - self.y/2)
-            self.geometry(f"{self.screen_x_half}x{self.screen_y_half}-0-557")
-
-
-    def button_event(self):
-        """JayRizzo Music Player Placeholder Setup."""
-        print("Button Placeholder Pressed")
-        return
-
-
-    def change_appearance_mode(self, new_appearance_mode):
-        """JayRizzo Music Player Change Appearance Mode."""
-        customtkinter.set_appearance_mode(new_appearance_mode)
-        return
-
-
-    def change_theme(self, new_theme):
-        """JayRizzo Music Player Change Theme."""
-        customtkinter.set_default_color_theme(new_theme)
-        return
-
-
-    def change_scaling(self, new_scaling: str):
-        """JayRizzo Music Player Change Zoom Scaling."""
-        new_scaling_float = int(new_scaling.replace("%", "")) / 100
-        customtkinter.set_spacing_scaling(new_scaling_float)
-        customtkinter.set_widget_scaling(new_scaling_float)
-        return
-
-
-    def saveConfig(self):
-        """Save Window Config Placement From Last Exit."""
-        global config
-        with open("config.ini", "w") as conf:
-            conf.write(f"{self.geometry()}\n")
-
-
-    def window_info(self):
-        """JayRizzo Music Player Window Info."""
-        screen_dimensions = f"{self.winfo_height()}x{self.winfo_width()}"
-        print(f"Screen Dimensions: {screen_dimensions}")
-        return
-
-    # ========================================================================
-    # ================= Time Duration & Measurement ==========================
-    # ========================================================================
-    def update_clock(self):
-        """JayRizzo Music Player Update Song Clock."""
-        now = time.strftime("%H:%M:%S")
-        self.ProgressBarLabel.set_text(now)
-        self.after(1000, self.update_clock)
-        return
-
-
-    def duration_from_seconds(self, s):
-        """Module to get the convert Seconds to a time like format."""
-        s = s
-        m, s = divmod(s, 60)
-        h, m = divmod(m, 60)
-        d, h = divmod(h, 24)
-        TIMELAPSED  = f"{d:03.0f}:{h:02.0f}:{m:02.0f}:{s:02.0f}"
-        return TIMELAPSED
-
-
-    def duration_from_millseconds(self, ms):
-        """Module to get the convert Seconds to a time like format."""
-        ms = ms
-        s, ms = divmod(ms, 1000)
-        m, s = divmod(s, 60)
-        h, m = divmod(m, 60)
-        d, h = divmod(h, 24)
-        TIMELAPSED  = f"{d:03.0f}:{h:02.0f}:{m:02.0f}:{s:02.0f}:{ms:03.0f}"
-        return TIMELAPSED
-
-    # ========================================================================
-    # ========================== Database Functions ==========================
-    # ========================================================================
-    def clicked_add_songs(self, playlist):
-        """Save Playlist to Database (TBD Placeholder)."""
-        list_size = self.PLAYLSTBOX.size()
-        for i in range(list_size):
-            song = self.PLAYLSTBOX.get(i)
-            path = song_dir_list[i]
-            # Add Song to playlist on database
-
-    # ========================================================================
-    # ======================= END Define Functions END =======================
-    # ========================================================================
+            else:
+                # Update Slider
+                self.getSongPos()
+                # print(f"00 self.event: {self.event} self.values: {self.values} song position: {self.getSongPos()} {self.SONGNAME}")
 
 if __name__ == "__main__":
     app = App()
-    app.attributes('-fullscreen', False)
-    app.protocol("WM_DELETE_WINDOW", app.on_closing)
-    app.wm_attributes("-transparent", True)
-    app.wm_attributes("-topmost", False)
-    app.minsize(1120, 470)
-    # app.state("zoomed")
-    app.mainloop()
+    app.main()
