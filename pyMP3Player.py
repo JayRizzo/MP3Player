@@ -86,13 +86,17 @@ class App(object):
                                                sg.Button(f"{PLAYBUTTN}", key="-PLAYSONG-" , disabled = True, font=("Helvetica", 50), enable_events=True),
                                                sg.Button(f"{PAUSEBUTN}", key="-PAUSESONG-", disabled = True, font=("Helvetica", 50), enable_events=True),
                                                sg.Button(f"{STOPBUTTN}", key="-STOPSONG-" , disabled = True, font=("Helvetica", 50), enable_events=True),
-                                               sg.Text(f'Song Time: {self.CURSONGTIME} of {self.SONGLENGTH}', key = "-SONGLENGTHDURATIONTEXT-")
                                            ],
-                                           [sg.Listbox(['a','b','c'], size=(70, 10), key="-PLAYLISTBOX-", enable_events=True)],
-
-                                            [sg.Slider(range=(0, 100.0), size=(60, 20), orientation='h', key='-SONGSLIDERPOS-', disabled = True, disable_number_display = True, enable_events=True, tick_interval=60)],
+                                            [sg.Text(f'Song Time: {self.CURSONGTIME} of {self.SONGLENGTH}', key = "-SONGLENGTHDURATIONTEXT-", justification = 'CENTER')]
                                           ]
-        self.window                     = sg.Window("MP3 Player", self.layout, font='Arial 18', grab_anywhere=False)
+        self.slider                     = [[sg.Slider(range=(0, 100.0), size=(60, 20), orientation='h', key='-SONGSLIDERPOS-', disabled = True, disable_number_display = True, enable_events=True, tick_interval=0)]]
+        self.textbox                     = [[sg.Listbox(['a','b','c'], size=(70, 10), key="-PLAYLISTBOX-", enable_events=True)]]
+        self.layout2                     = [
+                                           [[sg.Column(self.layout, element_justification='left', pad=(0, 10), key='LCOL'),
+                                                                                       sg.Column(self.textbox, element_justification='right', key='RCOL')],
+                                            sg.Column(self.slider, element_justification='right', key='LCOL')
+                                            ]]
+        self.window                     = sg.Window("MP3 Player", self.layout2, font='Arial 18', resizable=True, grab_anywhere=False)
 
 
     def DurationFromSeconds(self, s=0):
