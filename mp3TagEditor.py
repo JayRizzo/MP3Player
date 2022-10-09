@@ -7,120 +7,189 @@
 # Created Date: Tue Sep 26 19:10:53 2022 CDT
 # Last ModDate: Tue Sep 27 17:50:01 2022 CDT
 # =============================================================================
-import functools  # reduce - Required for ID3 Header Checks
-import mutagen
+import functools  # Reduce - Required for ID3 Header Checks
 from mutagen.mp3 import MP3
-from mutagen.mp3 import MPEGInfo
-from mutagen.mp4 import MP4
 from mutagen.id3 import ID3
-from mutagen.id3 import ID3Tags
-from mutagen.id3 import ID3NoHeaderError
+from mutagen.id3 import ID3NoHeaderError  # Required for catching errors when no ID3 tag exists on the file.
 from mutagen.id3 import Encoding  # Required for SYLT SYNC'D Lyrics
-from mutagen.id3 import AENC  # AENC [ Supported Version: 4.20 ] # id3.AENC(owner='', preview_start=0, preview_length=0, data='')
-from mutagen.id3 import APIC  # APIC [ Supported Version: 4.20 ] # Attached (or linked) Picture. id3.add(APIC(encoding=3, mime=u'image/jpeg', type=3, desc=u'Front Cover', data=self.get_cover(info)))  Example2# id3.add(APIC(encoding=3, mime=u'image/jpg', type=3, desc=u'Cover', data=self.get_cover(info['album_pic_url'])))
-from mutagen.id3 import ASPI  # ASPI [ Supported Version: 2.00 ] # Audio seek point index. Attributes: S, L, N, b, and Fi. For the meaning of these, see the ID3v2.4 specification. Fi is a list of integers.
-from mutagen.id3 import CHAP  # CHAP [ Supported Version: 2.00 ] # Chapter propertyHashKey An internal key used to ensure frame uniqueness in a tag
-from mutagen.id3 import COMM  # COMM [ Supported Version: 4.11 ] # Comments
-from mutagen.id3 import COMR  # COMR [ Supported Version: 4.25 ] # Commercial frame
-from mutagen.id3 import CTOC  # CTOC [ Supported Version: 2.00 ] # Table of contents propertyHashKey An internal key used to ensure frame uniqueness in a tag
-from mutagen.id3 import ENCR  # ENCR [ Supported Version: 4.26 ] # Encryption method registration
-from mutagen.id3 import EQU2  # EQU2 [ Supported Version: 2.00 ] # Equalisation (2).  Attributes: method - interpolation method (0 = band, 1 = linear) desc - identifying description adjustments - list of (frequency, vol_adjustment) pairs
-from mutagen.id3 import ETCO  # ETCO [ Supported Version: 4.06 ] # Event timing codes
-from mutagen.id3 import GEOB  # GEOB [ Supported Version: 4.16 ] # General encapsulated object
-from mutagen.id3 import GRID  # GRID [ Supported Version: 4.27 ] # Group identification registration
-from mutagen.id3 import IPLS  # IPLS [ Supported Version: 4.04 ] # Involved people list
-from mutagen.id3 import LINK  # LINK [ Supported Version: 4.21 ] # Linked information
-from mutagen.id3 import MCDI  # MCDI [ Supported Version: 4.05 ] # Music CD identifier
-from mutagen.id3 import MLLT  # MLLT [ Supported Version: 4.07 ] # MPEG location lookup table
-from mutagen.id3 import MVIN  # MVIN [ Supported Version: 2.00 ] # iTunes Movement Number/Count
-from mutagen.id3 import MVNM  # MVNM [ Supported Version: 2.00 ] # iTunes Movement Name
-from mutagen.id3 import OWNE  # OWNE [ Supported Version: 4.24 ] # Ownership frame
-from mutagen.id3 import PCNT  # PCNT [ Supported Version: 4.17 ] # Play counter
-from mutagen.id3 import PCST  # PCST [ Supported Version: 2.00 ] # iTunes Podcast Flag
-from mutagen.id3 import POPM  # POPM [ Supported Version: 4.18 ] # Popularimeter
-from mutagen.id3 import POSS  # POSS [ Supported Version: 4.22 ] # Position synchronization frame
-from mutagen.id3 import PRIV  # PRIV [ Supported Version: 4.28 ] # Private frame
-from mutagen.id3 import RBUF  # RBUF [ Supported Version: 4.19 ] # Recommended buffer size
-from mutagen.id3 import RVA2  # RVA2 [ Supported Version: 2.00 ] # Relative volume adjustment (2)
-from mutagen.id3 import RVAD  # RVAD [ Supported Version: 4.12 ] # Relative volume adjustment
-from mutagen.id3 import RVRB  # RVRB [ Supported Version: 4.14 ] # Reverb
-from mutagen.id3 import SEEK  # SEEK [ Supported Version: 2.00 ] # Seek frame.
-from mutagen.id3 import SIGN  # SIGN [ Supported Version: 2.00 ] # Signature frame.
-from mutagen.id3 import SYLT  # SYLT [ Supported Version: 4.10 ] # Synchronized lyric/text
-from mutagen.id3 import SYTC  # SYTC [ Supported Version: 4.08 ] # Synchronized tempo codes
-from mutagen.id3 import TALB  # TALB [ Supported Version: 2.00 ] # Album/Movie/Show title
-from mutagen.id3 import TBPM  # TBPM [ Supported Version: 2.00 ] # BPM (beats per minute)
-from mutagen.id3 import TCAT  # TCAT [ Supported Version: 2.00 ] # iTunes Podcast Category
-from mutagen.id3 import TCMP  # TCMP [ Supported Version: 2.00 ] # iTunes Compilation Flag
-from mutagen.id3 import TCOM  # TCOM [ Supported Version: 2.00 ] # TCOM Composer
-from mutagen.id3 import TCON  # TCON [ Supported Version: 2.00 ] # TCON Content type
-from mutagen.id3 import TCOP  # TCOP [ Supported Version: 2.00 ] # TCOP Copyright message
-from mutagen.id3 import TDAT  # TDAT [ Supported Version: 2.00 ] # TDAT Date
-from mutagen.id3 import TDEN  # TDEN [ Supported Version: 2.00 ] # Encoding Time
-from mutagen.id3 import TDES  # TDES [ Supported Version: 2.00 ] # iTunes Podcast Description
-from mutagen.id3 import TDLY  # TDLY [ Supported Version: 2.00 ] # TDLY Playlist delay
-from mutagen.id3 import TDOR  # TDOR [ Supported Version: 2.00 ] # Original Release Time
-from mutagen.id3 import TDRC  # TDRC [ Supported Version: 2.00 ] # Recording Time
-from mutagen.id3 import TDRL  # TDRL [ Supported Version: 2.00 ] # Release Time
-from mutagen.id3 import TDTG  # TDTG [ Supported Version: 2.00 ] # Tagging Time
-from mutagen.id3 import TENC  # TENC [ Supported Version: 2.00 ] # TENC Encoded by
-from mutagen.id3 import TEXT  # TEXT [ Supported Version: 2.00 ] # TEXT Lyricist/Text writer
-from mutagen.id3 import TFLT  # TFLT [ Supported Version: 2.00 ] # TFLT File type
-from mutagen.id3 import TGID  # TGID [ Supported Version: 2.00 ] # iTunes Podcast Identifier
-from mutagen.id3 import TIME  # TIME [ Supported Version: 2.00 ] # TIME Time
-from mutagen.id3 import TIPL  # TIPL [ Supported Version: 2.00 ] # Involved People List
-from mutagen.id3 import TIT1  # TIT1 [ Supported Version: 2.00 ] # TIT1 Content group description
-from mutagen.id3 import TIT2  # TIT2 [ Supported Version: 2.00 ] # TIT2 Title/songname/content description
-from mutagen.id3 import TIT3  # TIT3 [ Supported Version: 2.00 ] # TIT3 Subtitle/Description refinement
-from mutagen.id3 import TKEY  # TKEY [ Supported Version: 2.00 ] # TKEY Initial key
-from mutagen.id3 import TKWD  # TKWD [ Supported Version: 2.00 ] # iTunes Podcast Keywords
-from mutagen.id3 import TLAN  # TLAN [ Supported Version: 2.00 ] # TLAN Language(s)
-from mutagen.id3 import TLEN  # TLEN [ Supported Version: 2.00 ] # TLEN Length]
-from mutagen.id3 import TMCL  # TMCL [ Supported Version: 2.00 ] # Musicians Credits List
-from mutagen.id3 import TMED  # TMED [ Supported Version: 2.00 ] # TMED Media type
-from mutagen.id3 import TMOO  # TMOO [ Supported Version: 2.00 ] # Mood]
-from mutagen.id3 import TOAL  # TOAL [ Supported Version: 2.00 ] # TOAL Original album/movie/show title
-from mutagen.id3 import TOFN  # TOFN [ Supported Version: 2.00 ] # TOFN Original filename
-from mutagen.id3 import TOLY  # TOLY [ Supported Version: 2.00 ] # TOLY Original lyricist(s)/text writer(s)
-from mutagen.id3 import TOPE  # TOPE [ Supported Version: 2.00 ] # TOPE Original artist(s)/performer(s)
-from mutagen.id3 import TORY  # TORY [ Supported Version: 2.00 ] # TORY Original release year
-from mutagen.id3 import TOWN  # TOWN [ Supported Version: 2.00 ] # TOWN File owner/licensee
-from mutagen.id3 import TPE1  # TPE1 [ Supported Version: 2.00 ] # TPE1 Lead performer(s)/Soloist(s)
-from mutagen.id3 import TPE2  # TPE2 [ Supported Version: 2.00 ] # TPE2 Band/orchestra/accompaniment
-from mutagen.id3 import TPE3  # TPE3 [ Supported Version: 2.00 ] # TPE3 Conductor/performer refinement
-from mutagen.id3 import TPE4  # TPE4 [ Supported Version: 2.00 ] # TPE4 Interpreted, remixed, or otherwise modified by
-from mutagen.id3 import TPOS  # TPOS [ Supported Version: 2.00 ] # TPOS Part of a set
-from mutagen.id3 import TPRO  # TPRO [ Supported Version: 2.00 ] # Produced (P)
-from mutagen.id3 import TPUB  # TPUB [ Supported Version: 2.00 ] # TPUB Publisher
-from mutagen.id3 import TRCK  # TRCK [ Supported Version: 2.00 ] # TRCK Track number/Position in set
-from mutagen.id3 import TRDA  # TRDA [ Supported Version: 2.00 ] # TRDA Recording dates
-from mutagen.id3 import TRSN  # TRSN [ Supported Version: 2.00 ] # TRSN Internet radio station name
-from mutagen.id3 import TRSO  # TRSO [ Supported Version: 2.00 ] # TRSO Internet radio station owner
-from mutagen.id3 import TSIZ  # TSIZ [ Supported Version: 2.00 ] # TSIZ Size
-from mutagen.id3 import TSO2  # TSO2 [ Supported Version: 2.00 ] # iTunes Album Artist Sort
-from mutagen.id3 import TSOA  # TSOA [ Supported Version: 2.00 ] # Album Sort Order key
-from mutagen.id3 import TSOC  # TSOC [ Supported Version: 2.00 ] # iTunes Composer Sort
-from mutagen.id3 import TSOP  # TSOP [ Supported Version: 2.00 ] # Perfomer Sort Order key
-from mutagen.id3 import TSOT  # TSOT [ Supported Version: 2.00 ] # Title Sort Order key
-from mutagen.id3 import TSRC  # TSRC [ Supported Version: 2.00 ] # ISRC (international standard recording code)
-from mutagen.id3 import TSSE  # TSSE [ Supported Version: 2.00 ] # Software/Hardware and settings used for encoding
-from mutagen.id3 import TSST  # TSST [ Supported Version: 2.00 ] # Set Subtitle
-from mutagen.id3 import TXXX  # TXXX [ Supported Version: 2.00 ] # User defined text information frame
-from mutagen.id3 import TYER  # TYER [ Supported Version: 2.00 ] # Year
-from mutagen.id3 import UFID  # UFID [ Supported Version: 4.01 ] # Unique file identifier
-from mutagen.id3 import USER  # USER [ Supported Version: 4.23 ] # Terms of use
-from mutagen.id3 import USLT  # USLT [ Supported Version: 4.09 ] # Unsychronized lyric/text transcription
-from mutagen.id3 import WCOM  # WCOM [ Supported Version: 2.00 ] # Commercial information
-from mutagen.id3 import WCOP  # WCOP [ Supported Version: 2.00 ] # Copyright/Legal information
-from mutagen.id3 import GRP1  # GRP1 [ Supported Version: 2.00 ] # iTunes Grouping
-from mutagen.id3 import WFED  # WFED [ Supported Version: 2.00 ] # iTunes Podcast Feed
-from mutagen.id3 import WOAF  # WOAF [ Supported Version: 2.00 ] # Official audio file webpage
-from mutagen.id3 import WOAR  # WOAR [ Supported Version: 2.00 ] # Official artist/performer webpage
-from mutagen.id3 import WOAS  # WOAS [ Supported Version: 2.00 ] # Official audio source webpage
-from mutagen.id3 import WORS  # WORS [ Supported Version: 2.00 ] # Official internet radio station homepage
-from mutagen.id3 import WPAY  # WPAY [ Supported Version: 2.00 ] # Payment
-from mutagen.id3 import WPUB  # WPUB [ Supported Version: 2.00 ] # Publishers official webpage
-from mutagen.id3 import WXXX  # WXXX [ Supported Version: 2.00 ] # User defined URL link frame
+from mutagen.id3 import AENC as _AENC # AENC [ Supported Version: 4.20 ] # id3.AENC(owner='', preview_start=0, preview_length=0, data='')
+from mutagen.id3 import APIC as _APIC  # APIC [ Supported Version: 4.20 ] # Attached (or linked) Picture. id3.add(_APIC(encoding=3, mime=u'image/jpeg', type=3, desc=u'Front Cover', data=self.get_cover(info)))  Example2# id3.add(_APIC(encoding=3, mime=u'image/jpg', type=3, desc=u'Cover', data=self.get_cover(info['album_pic_url'])))
+from mutagen.id3 import ASPI as _ASPI  # ASPI [ Supported Version: 2.00 ] # Audio seek point index. Attributes: S, L, N, b, and Fi. For the meaning of these, see the ID3v2.4 specification. Fi is a list of integers.
+from mutagen.id3 import CHAP as _CHAP  # CHAP [ Supported Version: 2.00 ] # Chapter propertyHashKey An internal key used to ensure frame uniqueness in a tag
+from mutagen.id3 import COMM as _COMM  # COMM [ Supported Version: 4.11 ] # Comments
+from mutagen.id3 import COMR as _COMR  # COMR [ Supported Version: 4.25 ] # Commercial frame
+from mutagen.id3 import CTOC as _CTOC  # CTOC [ Supported Version: 2.00 ] # Table of contents propertyHashKey An internal key used to ensure frame uniqueness in a tag
+from mutagen.id3 import ENCR as _ENCR  # ENCR [ Supported Version: 4.26 ] # Encryption method registration
+from mutagen.id3 import EQU2 as _EQU2  # EQU2 [ Supported Version: 2.00 ] # Equalisation (2).  Attributes: method - interpolation method (0 = band, 1 = linear) desc - identifying description adjustments - list of (frequency, vol_adjustment) pairs
+from mutagen.id3 import ETCO as _ETCO  # ETCO [ Supported Version: 4.06 ] # Event timing codes
+from mutagen.id3 import GEOB as _GEOB  # GEOB [ Supported Version: 4.16 ] # General encapsulated object
+from mutagen.id3 import GRID as _GRID  # GRID [ Supported Version: 4.27 ] # Group identification registration
+from mutagen.id3 import IPLS as _IPLS  # IPLS [ Supported Version: 4.04 ] # Involved people list
+from mutagen.id3 import LINK as _LINK  # LINK [ Supported Version: 4.21 ] # Linked information
+from mutagen.id3 import MCDI as _MCDI  # MCDI [ Supported Version: 4.05 ] # Music CD identifier
+from mutagen.id3 import MLLT as _MLLT  # MLLT [ Supported Version: 4.07 ] # MPEG location lookup table
+from mutagen.id3 import MVIN as _MVIN  # MVIN [ Supported Version: 2.00 ] # iTunes Movement Number/Count
+from mutagen.id3 import MVNM as _MVNM  # MVNM [ Supported Version: 2.00 ] # iTunes Movement Name
+from mutagen.id3 import OWNE as _OWNE  # OWNE [ Supported Version: 4.24 ] # Ownership frame
+from mutagen.id3 import PCNT as _PCNT  # PCNT [ Supported Version: 4.17 ] # Play counter
+from mutagen.id3 import PCST as _PCST  # PCST [ Supported Version: 2.00 ] # iTunes Podcast Flag
+from mutagen.id3 import POPM as _POPM  # POPM [ Supported Version: 4.18 ] # Popularimeter
+from mutagen.id3 import POSS as _POSS  # POSS [ Supported Version: 4.22 ] # Position synchronization frame
+from mutagen.id3 import PRIV as _PRIV  # PRIV [ Supported Version: 4.28 ] # Private frame
+from mutagen.id3 import RBUF as _RBUF  # RBUF [ Supported Version: 4.19 ] # Recommended buffer size
+from mutagen.id3 import RVA2 as _RVA2  # RVA2 [ Supported Version: 2.00 ] # Relative volume adjustment (2)
+from mutagen.id3 import RVAD as _RVAD  # RVAD [ Supported Version: 4.12 ] # Relative volume adjustment
+from mutagen.id3 import RVRB as _RVRB  # RVRB [ Supported Version: 4.14 ] # Reverb
+from mutagen.id3 import SEEK as _SEEK  # SEEK [ Supported Version: 2.00 ] # Seek frame.
+from mutagen.id3 import SIGN as _SIGN  # SIGN [ Supported Version: 2.00 ] # Signature frame.
+from mutagen.id3 import SYLT as _SYLT  # SYLT [ Supported Version: 4.10 ] # Synchronized lyric/text
+from mutagen.id3 import SYTC as _SYTC  # SYTC [ Supported Version: 4.08 ] # Synchronized tempo codes
+from mutagen.id3 import TALB as _TALB  # TALB [ Supported Version: 2.00 ] # Album/Movie/Show title
+from mutagen.id3 import TBPM as _TBPM  # TBPM [ Supported Version: 2.00 ] # BPM (beats per minute)
+from mutagen.id3 import TCAT as _TCAT  # TCAT [ Supported Version: 2.00 ] # iTunes Podcast Category
+from mutagen.id3 import TCMP as _TCMP  # TCMP [ Supported Version: 2.00 ] # iTunes Compilation Flag
+from mutagen.id3 import TCOM as _TCOM  # TCOM [ Supported Version: 2.00 ] # Composer
+from mutagen.id3 import TCON as _TCON  # TCON [ Supported Version: 2.00 ] # Content type
+from mutagen.id3 import TCOP as _TCOP  # TCOP [ Supported Version: 2.00 ] # Copyright message
+from mutagen.id3 import TDAT as _TDAT  # TDAT [ Supported Version: 2.00 ] # Date
+from mutagen.id3 import TDEN as _TDEN  # TDEN [ Supported Version: 2.00 ] # Encoding Time
+from mutagen.id3 import TDES as _TDES  # TDES [ Supported Version: 2.00 ] # iTunes Podcast Description
+from mutagen.id3 import TDLY as _TDLY  # TDLY [ Supported Version: 2.00 ] # Playlist delay
+from mutagen.id3 import TDOR as _TDOR  # TDOR [ Supported Version: 2.00 ] # Original Release Time
+from mutagen.id3 import TDRC as _TDRC  # TDRC [ Supported Version: 2.00 ] # Recording Time
+from mutagen.id3 import TDRL as _TDRL  # TDRL [ Supported Version: 2.00 ] # Release Time
+from mutagen.id3 import TDTG as _TDTG  # TDTG [ Supported Version: 2.00 ] # Tagging Time
+from mutagen.id3 import TENC as _TENC  # TENC [ Supported Version: 2.00 ] # Encoded by
+from mutagen.id3 import TEXT as _TEXT  # TEXT [ Supported Version: 2.00 ] # Lyricist/Text writer
+from mutagen.id3 import TFLT as _TFLT  # TFLT [ Supported Version: 2.00 ] # File type
+from mutagen.id3 import TGID as _TGID  # TGID [ Supported Version: 2.00 ] # iTunes Podcast Identifier
+from mutagen.id3 import TIME as _TIME  # TIME [ Supported Version: 2.00 ] # Time
+from mutagen.id3 import TIPL as _TIPL  # TIPL [ Supported Version: 2.00 ] # Involved People List
+from mutagen.id3 import TIT1 as _TIT1  # TIT1 [ Supported Version: 2.00 ] # Content group description
+from mutagen.id3 import TIT2 as _TIT2  # TIT2 [ Supported Version: 2.00 ] # Title/songname/content description
+from mutagen.id3 import TIT3 as _TIT3  # TIT3 [ Supported Version: 2.00 ] # Subtitle/Description refinement
+from mutagen.id3 import TKEY as _TKEY  # TKEY [ Supported Version: 2.00 ] # Initial key
+from mutagen.id3 import TKWD as _TKWD  # TKWD [ Supported Version: 2.00 ] # iTunes Podcast Keywords
+from mutagen.id3 import TLAN as _TLAN  # TLAN [ Supported Version: 2.00 ] # Language(s)
+from mutagen.id3 import TLEN as _TLEN  # TLEN [ Supported Version: 2.00 ] # Length
+from mutagen.id3 import TMCL as _TMCL  # TMCL [ Supported Version: 2.00 ] # Musicians Credits List
+from mutagen.id3 import TMED as _TMED  # TMED [ Supported Version: 2.00 ] # Media type
+from mutagen.id3 import TMOO as _TMOO  # TMOO [ Supported Version: 2.00 ] # Mood
+from mutagen.id3 import TOAL as _TOAL  # TOAL [ Supported Version: 2.00 ] # Original album/movie/show title
+from mutagen.id3 import TOFN as _TOFN  # TOFN [ Supported Version: 2.00 ] # Original filename
+from mutagen.id3 import TOLY as _TOLY  # TOLY [ Supported Version: 2.00 ] # Original lyricist(s)/text writer(s)
+from mutagen.id3 import TOPE as _TOPE  # TOPE [ Supported Version: 2.00 ] # Original artist(s)/performer(s)
+from mutagen.id3 import TORY as _TORY  # TORY [ Supported Version: 2.00 ] # Original release year
+from mutagen.id3 import TOWN as _TOWN  # TOWN [ Supported Version: 2.00 ] # File owner/licensee
+from mutagen.id3 import TPE1 as _TPE1  # TPE1 [ Supported Version: 2.00 ] # Lead performer(s)/Soloist(s)
+from mutagen.id3 import TPE2 as _TPE2  # TPE2 [ Supported Version: 2.00 ] # Band/orchestra/accompaniment
+from mutagen.id3 import TPE3 as _TPE3  # TPE3 [ Supported Version: 2.00 ] # Conductor/performer refinement
+from mutagen.id3 import TPE4 as _TPE4  # TPE4 [ Supported Version: 2.00 ] # Interpreted, remixed, or otherwise modified by
+from mutagen.id3 import TPOS as _TPOS  # TPOS [ Supported Version: 2.00 ] # Part of a set
+from mutagen.id3 import TPRO as _TPRO  # TPRO [ Supported Version: 2.00 ] # Produced (P)
+from mutagen.id3 import TPUB as _TPUB  # TPUB [ Supported Version: 2.00 ] # Publisher
+from mutagen.id3 import TRCK as _TRCK  # TRCK [ Supported Version: 2.00 ] # Track number/Position in set
+from mutagen.id3 import TRDA as _TRDA  # TRDA [ Supported Version: 2.00 ] # Recording dates
+from mutagen.id3 import TRSN as _TRSN  # TRSN [ Supported Version: 2.00 ] # Internet radio station name
+from mutagen.id3 import TRSO as _TRSO  # TRSO [ Supported Version: 2.00 ] # Internet radio station owner
+from mutagen.id3 import TSIZ as _TSIZ  # TSIZ [ Supported Version: 2.00 ] # Size
+from mutagen.id3 import TSO2 as _TSO2  # TSO2 [ Supported Version: 2.00 ] # iTunes Album Artist Sort
+from mutagen.id3 import TSOA as _TSOA  # TSOA [ Supported Version: 2.00 ] # Album Sort Order key
+from mutagen.id3 import TSOC as _TSOC  # TSOC [ Supported Version: 2.00 ] # iTunes Composer Sort
+from mutagen.id3 import TSOP as _TSOP  # TSOP [ Supported Version: 2.00 ] # Perfomer Sort Order key
+from mutagen.id3 import TSOT as _TSOT  # TSOT [ Supported Version: 2.00 ] # Title Sort Order key
+from mutagen.id3 import TSRC as _TSRC  # TSRC [ Supported Version: 2.00 ] # ISRC (international standard recording code)
+from mutagen.id3 import TSSE as _TSSE  # TSSE [ Supported Version: 2.00 ] # Software/Hardware and settings used for encoding
+from mutagen.id3 import TSST as _TSST  # TSST [ Supported Version: 2.00 ] # Set Subtitle
+from mutagen.id3 import TXXX as _TXXX  # TXXX [ Supported Version: 2.00 ] # User defined text information frame
+from mutagen.id3 import TYER as _TYER  # TYER [ Supported Version: 2.00 ] # Year
+from mutagen.id3 import UFID as _UFID  # UFID [ Supported Version: 4.01 ] # Unique file identifier
+from mutagen.id3 import USER as _USER  # USER [ Supported Version: 4.23 ] # Terms of use
+from mutagen.id3 import USLT as _USLT  # USLT [ Supported Version: 4.09 ] # UnSychronized lyric/text transcription
+from mutagen.id3 import WCOM as _WCOM  # WCOM [ Supported Version: 2.00 ] # Commercial information
+from mutagen.id3 import WCOP as _WCOP  # WCOP [ Supported Version: 2.00 ] # Copyright/Legal information
+from mutagen.id3 import GRP1 as _GRP1  # GRP1 [ Supported Version: 2.00 ] # iTunes Grouping
+from mutagen.id3 import WFED as _WFED  # WFED [ Supported Version: 2.00 ] # iTunes Podcast Feed
+from mutagen.id3 import WOAF as _WOAF  # WOAF [ Supported Version: 2.00 ] # Official audio file webpage
+from mutagen.id3 import WOAR as _WOAR  # WOAR [ Supported Version: 2.00 ] # Official artist/performer webpage
+from mutagen.id3 import WOAS as _WOAS  # WOAS [ Supported Version: 2.00 ] # Official audio source webpage
+from mutagen.id3 import WORS as _WORS  # WORS [ Supported Version: 2.00 ] # Official internet radio station homepage
+from mutagen.id3 import WPAY as _WPAY  # WPAY [ Supported Version: 2.00 ] # Payment
+from mutagen.id3 import WPUB as _WPUB  # WPUB [ Supported Version: 2.00 ] # Publishers official webpage
+from mutagen.id3 import WXXX as _WXXX  # WXXX [ Supported Version: 2.00 ] # User defined URL link frame
+
+from mutagen.id3 import BUF
+from mutagen.id3 import CNT
+from mutagen.id3 import COM
+from mutagen.id3 import CRA
+from mutagen.id3 import CRM
+from mutagen.id3 import ETC
+from mutagen.id3 import GEO
+from mutagen.id3 import GP1
+from mutagen.id3 import ID3
+from mutagen.id3 import IPL
+from mutagen.id3 import LNK
+from mutagen.id3 import MCI
+from mutagen.id3 import MLL
+from mutagen.id3 import MVI
+from mutagen.id3 import MVN
+from mutagen.id3 import PIC
+from mutagen.id3 import POP
+from mutagen.id3 import REV
+from mutagen.id3 import RVA
+from mutagen.id3 import SLT
+from mutagen.id3 import STC
+from mutagen.id3 import TAL
+from mutagen.id3 import TBP
+from mutagen.id3 import TCM
+from mutagen.id3 import TCO
+from mutagen.id3 import TCP
+from mutagen.id3 import TCR
+from mutagen.id3 import TDA
+from mutagen.id3 import TDY
+from mutagen.id3 import TEN
+from mutagen.id3 import TFT
+from mutagen.id3 import TIM
+from mutagen.id3 import TKE
+from mutagen.id3 import TLA
+from mutagen.id3 import TLE
+from mutagen.id3 import TMT
+from mutagen.id3 import TOA
+from mutagen.id3 import TOF
+from mutagen.id3 import TOL
+from mutagen.id3 import TOR
+from mutagen.id3 import TOT
+from mutagen.id3 import TP1
+from mutagen.id3 import TP2
+from mutagen.id3 import TP3
+from mutagen.id3 import TP4
+from mutagen.id3 import TPA
+from mutagen.id3 import TPB
+from mutagen.id3 import TRC
+from mutagen.id3 import TRD
+from mutagen.id3 import TRK
+from mutagen.id3 import TS2
+from mutagen.id3 import TSA
+from mutagen.id3 import TSC
+from mutagen.id3 import TSI
+from mutagen.id3 import TSP
+from mutagen.id3 import TSS
+from mutagen.id3 import TST
+from mutagen.id3 import TT1
+from mutagen.id3 import TT2
+from mutagen.id3 import TT3
+from mutagen.id3 import TXT
+from mutagen.id3 import TXX
+from mutagen.id3 import TYE
+from mutagen.id3 import UFI
+from mutagen.id3 import ULT
+from mutagen.id3 import WAF
+from mutagen.id3 import WAR
+from mutagen.id3 import WAS
+from mutagen.id3 import WCM
+from mutagen.id3 import WCP
+from mutagen.id3 import WPB
+from mutagen.id3 import WXX
 
 # =====================================================================================================================
 # Four Character Imports
@@ -129,7 +198,7 @@ from mutagen.id3 import WXXX  # WXXX [ Supported Version: 2.00 ] # User defined 
 # https://mutagen.readthedocs.io/en/latest/api/id3_frames.html?highlight=Group%20identification%20registration
 # =============================================================================
 # Notes:
-# TODO: Share here when done https://stackoverflow.com/q/37414448/1896134 & https://stackoverflow.com/q/18248200/1896134
+# TODO: Share here when done  & https://stackoverflow.com/q/18248200/1896134
 # TODO: embed album art in an MP3
 # TODO: Produced By Tom MacDonald
 # TODO: Written By Tom MacDonald
@@ -352,6 +421,54 @@ class MP3TagYourSong(object):
         self.SetID3Handle()
         return self.MP3HNDLR.info.length
 
+    def getSongBPM(self):
+        """
+            Input: filename, BPM (int)
+            Example: setSongUnSyncedLyrics('song', 'Some Lyics add Some More Lyics, add as many as you'd like')
+        """
+        try:
+            self.SongBPM = f"{self.ID3HNDLR.getall('TBPM')[0][0]}"
+        except IndexError as e:
+            self.SongBPM = 0
+        except ID3NoHeaderError as e:
+            self.CreateMissingTag()
+            self.SongBPM = 0
+        except Exception as e:
+            print(f"Error: {e}")
+        return self.SongBPM
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     # =====================================================================================================================
     # Tag Setters
@@ -382,7 +499,7 @@ class MP3TagYourSong(object):
             Example: setSongArtist('song', 'Artist Name')
         """
         self.SongArtistName = ArtistName
-        self.ID3HNDLR.add(TPE1(encoding=Encoding.UTF16, text=[ArtistName]))
+        self.ID3HNDLR.add(_TPE1(encoding=Encoding.UTF16, text=[ArtistName]))
         self.ID3HNDLR.save(v1=1, v2_version=4, v23_sep='/')
 
 
@@ -392,7 +509,7 @@ class MP3TagYourSong(object):
             Example: setSongAlbum('song', 'Album Name')
         """
         self.SongAlbumName = AlbumName
-        self.ID3HNDLR.add(TALB(encoding=Encoding.UTF16, text=[AlbumName]))
+        self.ID3HNDLR.add(_TALB(encoding=Encoding.UTF16, text=[AlbumName]))
         self.ID3HNDLR.save(v1=1, v2_version=4, v23_sep='/')
 
 
@@ -401,7 +518,7 @@ class MP3TagYourSong(object):
             Input: filename, SongTitle (STRING)
             Example: setSongTitle('song', 'Song Title')
         """
-        self.ID3HNDLR.add(TIT2(encoding=Encoding.UTF16, text=[SongTitle]))
+        self.ID3HNDLR.add(_TIT2(encoding=Encoding.UTF16, text=[SongTitle]))
         self.ID3HNDLR.save(v1=1, v2_version=4, v23_sep='/')
 
 
@@ -410,7 +527,7 @@ class MP3TagYourSong(object):
             Input: filename, PlayCount (INTEGER)
             Example: setSongPlayCount('song', 1531]
         """
-        self.ID3HNDLR.add(PCNT(encoding=3, count=PlayCount))
+        self.ID3HNDLR.add(_PCNT(encoding=3, count=PlayCount))
         self.ID3HNDLR.save(v1=1, v2_version=4, v23_sep='/')
 
 
@@ -434,6 +551,41 @@ class MP3TagYourSong(object):
         self.ID3HNDLR.save(v1=1, v2_version=4, v23_sep='/')
 
 
+    def setSongBPM(self, bpm : int):
+        """
+            Input: filename, BPM (int)
+            Example: setSongUnSyncedLyrics('song', 'Some Lyics add Some More Lyics, add as many as you'd like')
+        """
+        sBPM = bpm
+        self.ID3HNDLR.add(_TBPM(encoding=3, speed=sBPM))
+        # self.ID3HNDLR.setall("TBPM", [TBPM(encoding=Encoding.UTF16, lang='eng', format=2, type=1, bpm=sBPM)])
+        self.ID3HNDLR.save(v1=1, v2_version=4, v23_sep='/')
+
+
+# "TCMP": "compilation", # iTunes extension
+# "TCOM": "composer",
+# "TCOP": "copyright",
+# "TENC": "encodedby",
+# "TEXT": "lyricist",
+# "TLEN": "length",
+# "TMED": "media",
+# "TMOO": "mood",
+# "TIT3": "version",
+# "TPE2": "performer",
+# "TPE3": "conductor",
+# "TPE4": "arranger",
+# "TPOS": "discnumber",
+# "TPUB": "organization",
+# "TRCK": "tracknumber",
+# "TOLY": "author",
+# "TSO2": "albumartistsort", # iTunes extension
+# "TSOA": "albumsort",
+# "TSOC": "composersort", # iTunes extension
+# "TSOP": "artistsort",
+# "TSOT": "titlesort",
+# "TSRC": "isrc",
+# "TSST": "discsubtitle",
+
 if __name__ == '__main__':
     # =====================================================================================================================
     # Example Song
@@ -452,6 +604,7 @@ if __name__ == '__main__':
     print(f"Song Artist Name:       {song.getSongArtist()}")
     print(f"Song Album Name:        {song.getSongAlbum()}")
     print(f"Song Play Count:        {song.getSongPlayCount()}")
+    print(f"Song BPM:               {song.getSongBPM()}")
     print(f"Song Total Duration:    {song.duration_from_seconds(song.SongDuration)}")
     print(f"Song Total Duration(s): {song.SongDuration}")
     print()
@@ -461,12 +614,14 @@ if __name__ == '__main__':
     song.setSongArtist("Tom MacDonald")
     song.setSongAlbum("No Guts No Glory")
     song.setSongPlayCount(393)
+    song.setSongBPM(393)
 
     # Check the changes
     print(f"Song Title Name         {song.getSongTitle()}")
     print(f"Song Artist Name:       {song.getSongArtist()}")
     print(f"Song Album Name:        {song.getSongAlbum()}")
     print(f"Song Play Count:        {song.getSongPlayCount()}")
+    print(f"Song BPM:               {song.getSongBPM()}")
     print(f"Song Total Duration:    {song.duration_from_seconds(song.SongDuration)}")
     print(f"Song Total Duration(s): {song.SongDuration}")
 
@@ -491,6 +646,7 @@ if __name__ == '__main__':
     print(f"Song Artist Name:       {song2.getSongArtist()}")
     print(f"Song Album Name:        {song2.getSongAlbum()}")
     print(f"Song Play Count:        {song2.getSongPlayCount()}")
+    print(f"Song BPM:               {song2.getSongBPM()}")
     print(f"Song Total Duration:    {song2.duration_from_seconds(song2.SongDuration)}")
     print(f"Song Total Duration(s): {song2.SongDuration}")
     print()
@@ -500,12 +656,14 @@ if __name__ == '__main__':
     song2.setSongArtist("Falling In Reverse")
     song2.setSongAlbum("Fashionably Late (Deluxe Edition)")
     song2.setSongPlayCount(393)
+    song2.setSongBPM(393)
 
     # Check Second Song Loading the Song captures the initial Song Info
     print(f"Song Title Name         {song2.getSongTitle()}")
     print(f"Song Artist Name:       {song2.getSongArtist()}")
     print(f"Song Album Name:        {song2.getSongAlbum()}")
     print(f"Song Play Count:        {song2.getSongPlayCount()}")
+    print(f"Song BPM:               {song2.getSongBPM()}")
     print(f"Song Total Duration:    {song2.duration_from_seconds(song2.SongDuration)}")
     print(f"Song Total Duration(s): {song2.SongDuration}")
     print()
