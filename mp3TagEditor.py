@@ -233,7 +233,7 @@ class MP3TagYourSong(object):
     def startFiredUp(self):
         self.SongArtistName = self.getSongArtist()
         self.SongAlbumName = self.getSongAlbum()
-        self.SongTitleName = self.getSongTitle()
+        self.SongTitleName = self.getSongName()
         self.SongPlayCount = self.getSongPlayCount()
         self.SongSyncLyrcs = self.getSongSyncedLyrics()
         self.SongPlainLyrcs = self.getSongUnSyncedLyrics()
@@ -319,7 +319,7 @@ class MP3TagYourSong(object):
         return self.songpath
 
 
-    def getSongTitle(self):
+    def getSongName(self):
         """Show Song Song Name/Title."""
         try:
             self.SongTitleName = f"{self.ID3HNDLR.getall('TIT2')[0][0]}"
@@ -600,7 +600,7 @@ if __name__ == '__main__':
     song.convertID3Tags2to3()
 
     # Getters
-    print(f"Song Title Name         {song.getSongTitle()}")
+    print(f"Song Title Name         {song.getSongName()}")
     print(f"Song Artist Name:       {song.getSongArtist()}")
     print(f"Song Album Name:        {song.getSongAlbum()}")
     print(f"Song Play Count:        {song.getSongPlayCount()}")
@@ -617,7 +617,7 @@ if __name__ == '__main__':
     song.setSongBPM(393)
 
     # Check the changes
-    print(f"Song Title Name         {song.getSongTitle()}")
+    print(f"Song Title Name         {song.getSongName()}")
     print(f"Song Artist Name:       {song.getSongArtist()}")
     print(f"Song Album Name:        {song.getSongAlbum()}")
     print(f"Song Play Count:        {song.getSongPlayCount()}")
@@ -642,7 +642,7 @@ if __name__ == '__main__':
     song2.convertID3Tags2to3()
 
     # Getters
-    print(f"Song Title Name         {song2.getSongTitle()}")
+    print(f"Song Title Name         {song2.getSongName()}")
     print(f"Song Artist Name:       {song2.getSongArtist()}")
     print(f"Song Album Name:        {song2.getSongAlbum()}")
     print(f"Song Play Count:        {song2.getSongPlayCount()}")
@@ -659,7 +659,7 @@ if __name__ == '__main__':
     song2.setSongBPM(393)
 
     # Check Second Song Loading the Song captures the initial Song Info
-    print(f"Song Title Name         {song2.getSongTitle()}")
+    print(f"Song Title Name         {song2.getSongName()}")
     print(f"Song Artist Name:       {song2.getSongArtist()}")
     print(f"Song Album Name:        {song2.getSongAlbum()}")
     print(f"Song Play Count:        {song2.getSongPlayCount()}")
