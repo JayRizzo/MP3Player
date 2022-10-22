@@ -67,77 +67,77 @@ class App(object):
         self.CURSONGTIME                = 0                     # Current Song Time Song
         self.SLIDERTIME                 = 0                     # Current Song Time Slider
         self.SETPOSITION                = 0                     # Current Song Time Slider
-        self.SONGLENGTH                 = 0                   # Default Song Length Slider
+        self.SONGLENGTH                 = 0                     # Default Song Length Slider
         self.TOTALSONGL                 = 0                     # Total Time For All Songs
-        self.VOLUME                     = 100.0                 # Set Initial Volume For PyGame Player
+        self.VOLUME                     = 100.00                # Set Initial Volume For PyGame Player
         self.PLAYER                     = ''
         self.FILENAME                   = ''
-        self.SONGNAME                   = ''
+        self.B4PAUSEDVOLUME             = 0.00
         self.FULLFILEPATH               = ''
         self.MP3SONGARTIST              = ''
         self.MP3SONGALBUM               = ''
         self.MP3SONGPLAYCOUNT           = ''
+        self.right_click_menu           = ['Unused', ['&FPS', '—', 'Menu A', 'Menu B', 'Menu C', ['Menu C1', 'Menu C2'], '—', 'Exit']]
 
         # ========================================================================
         # ==================== Initialize the SimpleGUI Layout ===================
         # ========================================================================
         self.theme = sg.ChangeLookAndFeel('Dark')
 
-        self.menu_def = [['File', ['Open', 'Save', 'Exit',]],
-                         ['Edit', ['Paste', ['Special', 'Normal',], 'Undo'],],
-                         ['Help', 'About...'],
+        self.menu_def = [
+                          ['File', ['Open', 'Save', 'Exit',]]
+                        , ['Edit', ['Paste', ['Special', 'Normal',], 'Undo'],]
+                        , ['Help', 'About...']
                         ]
+        self.option = sg.SetOptions (
+                                      background_color = 'black'
+                                    , element_background_color = 'skyBlue'
+                                    , text_element_background_color = 'black'
+                                    , font = ('Arial', 10, 'bold')
+                                    , text_color = 'lightgrey'
+                                    , input_text_color = 'White'
+                                    , button_color = ('Blue', 'black')
+                                    )
 
-        self.option = sg.SetOptions (background_color = 'black',
-            element_background_color = 'skyBlue',
-            text_element_background_color = 'black',
-               font = ('Arial', 10, 'bold'),
-               text_color = 'lightgrey',
-               input_text_color ='White',
-               button_color = ('Blue', 'black')
-               )
 
-
-        self.column1 = [[sg.Listbox(self.PLAYLSTBOX,   size=(70, 10), key="-PLAYLISTBOX-", enable_events=True)]]
+        self.column1 = [
+                          [sg.Listbox(self.PLAYLSTBOX,   size = (70, 10), key = "-PLAYLISTBOX-", enable_events = True)]
+                        , [sg.Slider(range = (0, 100), size = (60, 15), orientation = 'h', key = '-SONGSLIDERPOS-',    default_value = 0, disabled = True,  disable_number_display = True, enable_events = True, tick_interval = 0, pad = (20, 5))]
+                        , [
+                            sg.Button(f"{BACKARROW}", key = '-BACKSONG-',    image_subsample = 2, border_width = 0, disabled = True, font = ("Helvetica", 60), enable_events = True, button_color = (sg.theme_background_color(), sg.theme_background_color()), visible = True)
+                          , sg.Button(f"{PLAYBUTTN}", key = '-PLAYSONG-',    image_subsample = 2, border_width = 0, disabled = True, font = ("Helvetica", 60), enable_events = True, button_color = (sg.theme_background_color(), sg.theme_background_color()), visible = True)
+                          , sg.Button(f"{PAUSEBUTN}", key = '-PAUSESONG-',   image_subsample = 2, border_width = 0, disabled = True, font = ("Helvetica", 60), enable_events = True, button_color = (sg.theme_background_color(), sg.theme_background_color()), visible = True)
+                          , sg.Button(f"{STOPBUTTN}", key = '-STOPSONG-',    image_subsample = 2, border_width = 0, disabled = True, font = ("Helvetica", 60), enable_events = True, button_color = (sg.theme_background_color(), sg.theme_background_color()), visible = True)
+                          , sg.Button(f"{FORWARROW}", key = '-FORWARDSONG-', image_subsample = 2, border_width = 0, disabled = True, font = ("Helvetica", 60), enable_events = True, button_color = (sg.theme_background_color(), sg.theme_background_color()), visible = True)
+                          , sg.Button(f"{REPEATBTN}", key = '-REPEATSONG-',  image_subsample = 2, border_width = 0, disabled = True, font = ("Helvetica", 60), enable_events = True, button_color = (sg.theme_background_color(), sg.theme_background_color()), visible = True)
+                          , sg.Button(f"{SHFLLBUTN}", key = '-SHUFFLESONG-', image_subsample = 2, border_width = 0, disabled = True, font = ("Helvetica", 60), enable_events = True, button_color = (sg.theme_background_color(), sg.theme_background_color()), visible = True)
+                          , sg.Button(f"{MUTEBUTTN}", key = '-MUTESONG-',    image_subsample = 2, border_width = 0, disabled = True, font = ("Helvetica", 60), enable_events = True, button_color = (sg.theme_background_color(), sg.theme_background_color()), visible = True)
+                          , sg.Button(f"{INFOBUTTN}", key = '-INFOSONG-',    image_subsample = 2, border_width = 0, disabled = True, font = ("Helvetica", 60), enable_events = True, button_color = (sg.theme_background_color(), sg.theme_background_color()), visible = False)
+                          ]
+                       ]
         self.column2 = [
-                        [sg.FileBrowse(size=(17, 1), key="-MP3SONG-", enable_events=True, file_types=(("MP3 files", "*.mp3"),))],
-                        [sg.Text(f'Song Time: {self.CURSONGTIME} of {self.SONGLENGTH}', key = "-SONGLENGTHDURATIONTEXT-", justification = 'CENTER')],
-                        [sg.Text(f'Song  : {self.SONGNAME}', font=("Helvetica", 25), key = "-SONGNAME-", enable_events=True, justification='center')],
-                        [sg.Text(f'Artist: {self.MP3SONGARTIST}',   key = "-SONGARTIST-",   justification = 'left')],
-                        [sg.Text(f'Album : {self.MP3SONGALBUM}',    key = "-SONGALBUM-",    justification = 'left')],
-                        [sg.Text(f'Plays : {self.MP3SONGPLAYCOUNT}',    key = "-SONGPLAYCOUNT-",    justification = 'left')],
+                            [sg.FilesBrowse(size = (17, 1), enable_events = True, file_types = (("MP3 files", "*.mp3"),),                                                  key = '-MP3SONG-'  )]
+                          , [sg.Text(f'Time:    {self.CURSONGTIME} of {self.SONGLENGTH}', font = ("Consolas", 20), enable_events = True, justification = 'CENTER', key = '-SONGLENGTHDURATIONTEXT-', )]
+                          , [sg.Text(f'Song:    {self.FILENAME}',                         font = ("Consolas", 20), enable_events = True, justification = 'CENTER', key = '-SONGNAME-')]
+                          , [sg.Text(f'Artist:  {self.MP3SONGARTIST}',                    font = ("Consolas", 20), enable_events = True, justification = 'LEFT',   key = '-SONGARTIST-')]
+                          , [sg.Text(f'Album:   {self.MP3SONGALBUM}',                     font = ("Consolas", 20), enable_events = True, justification = 'LEFT',   key = '-SONGALBUM-')]
+                          , [sg.Text(f'Plays:   {self.MP3SONGPLAYCOUNT}',                 font = ("Consolas", 20), enable_events = True, justification = 'LEFT',   key = '-SONGPLAYCOUNT-')]
+                       ]
+        self.column3 = [
+                            [sg.Slider(range = (0, 100), size = (15, 15), orientation = 'v',      font = ("Helvetica", 15), enable_events = True, key = '-VOLUMESLIDERPOS-',  default_value = 100, disabled = False, disable_number_display = True, tick_interval = 0.1)]
+                       ]
+        self.Layout = [
+                        [
+                              sg.Column(self.column1, element_justification = 'LEFT', vertical_alignment = 'LEFT',   justification = 'CENTER', pad = (10, 10), key = 'LCOL')
+                            , sg.Column(self.column2, element_justification = 'LEFT', vertical_alignment = 'LEFT', justification = 'CENTER', pad = (10, 10), key = 'CCOL')
+                            , sg.Column(self.column3, element_justification = 'LEFT', vertical_alignment = 'RIGHT',  justification = 'RIGHT',  pad = (10, 10), key = 'RCOL')
+                        ]
                       ]
-        self.column3 = [[sg.Slider(range=(0, 100), size=(10, 15), orientation='v', key='-VOLUMESLIDERPOS-',  default_value=100, disabled=False, disable_number_display=True, enable_events=True, tick_interval=0.1)]]
-        self.row2    = [[sg.Slider(range=(0, 100), size=(60, 15), orientation='h', key='-SONGSLIDERPOS-',    default_value=0, disabled=True,  disable_number_display=True, enable_events=True, tick_interval=0)]]
-        self.row3 = [
-                       sg.Button(f"{BACKARROW}", key="-BACKSONG-" ,     disabled=True, font=("Helvetica", 60), enable_events=True),
-                       sg.Button(f"{PLAYBUTTN}", key="-PLAYSONG-" ,     disabled=True, font=("Helvetica", 60), enable_events=True),
-                       sg.Button(f"{PAUSEBUTN}", key="-PAUSESONG-",     disabled=True, font=("Helvetica", 60), enable_events=True),
-                       sg.Button(f"{STOPBUTTN}", key="-STOPSONG-" ,     disabled=True, font=("Helvetica", 60), enable_events=True),
-                       sg.Button(f"{FORWARROW}", key="-FORWARDSONG-" ,  disabled=True, font=("Helvetica", 60), enable_events=True),
-                    ]
-        self.row4 = [
-                        sg.Button(f"{REPEATBTN}", key="-REPEATSONG-" ,   disabled=True, font=("Helvetica", 60), enable_events=True),
-                        sg.Button(f"{SHFLLBUTN}", key="-SHUFFLESONG-" ,  disabled=True, font=("Helvetica", 60), enable_events=True),
-                        sg.Button(f"{MUTEBUTTN}", key="-MUTESONG-",      disabled=True, font=("Helvetica", 60), enable_events=True),
-                        sg.Button(f"{SPKRBUTTN}", key="-UNMUTESONG-" ,   disabled=True, font=("Helvetica", 60), enable_events=True),
-                        sg.Button(f"{INFOBUTTN}", key="-INFOSONG-" ,     disabled=True, font=("Helvetica", 60), enable_events=True),
-                    ]
+        self.window = sg.Window(F"{MUSICNOTE} JayRizzo's MP3 Player {MUSICNOTE}"
+                                , [[sg.Menu(self.menu_def)], self.Layout]
+                                , font = 'Arial 18', resizable = True, grab_anywhere = False)
 
-        self.Layout = [[
-                                  sg.Column(self.column1, element_justification='left', vertical_alignment='left',   justification='center', pad=(10, 10), key='LCOL')
-                                , sg.Column(self.column2, element_justification='left', vertical_alignment='center', justification='center', pad=(10, 10), key='CCOL')
-                                , sg.Column(self.column3, element_justification='left', vertical_alignment='left',   justification='center', pad=(10, 10), key='RCOL2')
-                                ],
-                               self.row2,
-                               self.row3,
-                               self.row4]
-
-        self.window = sg.Window(F"{MUSICNOTE} JayRizzo's MP3 Player {MUSICNOTE}",
-                                [[sg.Menu(self.menu_def)], self.Layout],
-                                font='Arial 18', resizable=True, grab_anywhere=False)
-
-    def DurationFromSeconds(self, s=0):
+    def DurationFromSeconds(self, s = 0):
         """
             Convert Seconds to Human Readable Time Format.
             INPUT : s (AKA: Seconds)
@@ -151,19 +151,7 @@ class App(object):
         return PRINTZTIME
 
     def ImageButton(self, title, key):
-        return sg.Button(title, button_color=('#F0F0F0', '#F0F0F0'),
-                    border_width=0, key=key)
-
-    def loadSong(self, filename):
-        mixer.music.stop()
-        mixer.music.load(filename)
-        self.PLAYLSTBOX = basename(filename).split('/')[0].split('.')[0]
-        print(f"PLAYLISTBOX: {self.PLAYLSTBOX}")
-        self.window['-PLAYLISTBOX-'].update([self.PLAYLSTBOX])
-        self.setSongLength(filename)
-
-    def getSongName(self):
-        return self.SONGNAME
+        return sg.Button(title, button_color = ('#F0F0F0', '#F0F0F0'), border_width = 0, key = key)
 
     def getSongMetaData(self, filename):
         self.MP3SONGARTIST = MP3TagYourSong(self.FILENAME).getSongArtist()
@@ -176,24 +164,34 @@ class App(object):
         self.window['-SONGPLAYCOUNT-'].update(f"Plays: {self.MP3SONGPLAYCOUNT}")
         return self.MP3SONGARTIST
 
-    def LoadSong(self):
-        self.FILENAME = self.values['-MP3SONG-']
-        self.loadSong(self.FILENAME)
-        self.setSongName(self.FILENAME)
+    def LoadSongs(self):
+        self.PLAYLSTPTH = self.values['-MP3SONG-'].split(';')
+        for i in self.values['-MP3SONG-'].split(';'):
+            print(self.PLAYLSTPTH)
+            print(self.window['-PLAYLISTBOX-'])
+            self.FILENAME = ''.join([i])
+            self.PLAYLSTBOX += self.PLAYLSTPTH
+            self.window['-PLAYLISTBOX-'].update([self.PLAYLSTBOX])
+
+        print(f"PLAYLISTBOX: {self.PLAYLSTBOX}")
+        self.setSongLength(self.FILENAME)
         self.getSongMetaData(self.FILENAME)
         # Enable Buttons After Song Loaded Event
-        self.window['-PLAYSONG-'].update(disabled=False)
-        self.window['-PAUSESONG-'].update(disabled=False)
-        self.window['-STOPSONG-'].update(disabled=False)
-        self.window['-SONGSLIDERPOS-'].update(disabled=False)
-        self.window['-SONGSLIDERPOS-'].update(range=(0,self.SONGLENGTH))
-        print(f"02 self.event: {self.event}  self.values: {self.values} self.FILENAME: {self.FILENAME} {self.SONGNAME}")
+        print(f"02 self.event: {self.event}  self.values: {self.values} self.FILENAME: {self.FILENAME} {self.FILENAME}")
+        self.window['-PLAYLISTBOX-'].update(set_to_index=1, scroll_to_index=1)
+        mixer.music.stop()
+        mixer.music.load(self.FILENAME)
+        self.window['-BACKSONG-'].update(   disabled = False, visible = True)
+        self.window['-PLAYSONG-'].update(   disabled = False, visible = True)
+        self.window['-FORWARDSONG-'].update(disabled = False, visible = True)
+        self.window['-REPEATSONG-'].update( disabled = False, visible = True)
+        self.window['-SHUFFLESONG-'].update(disabled = False, visible = True)
+        self.window['-PAUSESONG-'].update(  disabled = False, visible = True)
+        self.window['-STOPSONG-'].update(   disabled = False, visible = True)
+        self.window['-MUTESONG-'].update(   disabled = False, visible = True)
+        self.window['-INFOSONG-'].update(   disabled = False, visible = True)
+        self.window['-SONGSLIDERPOS-'].update(disabled = False, visible = True, range = (0,self.SONGLENGTH))
 
-
-    def setSongName(self, filename):
-        self.SONGNAME = basename(filename).split('/')[0].split('.')[0]
-        self.window['-SONGNAME-'].update(self.SONGNAME)
-        return self.SONGNAME
 
     def getSongLength(self, filename):
         song = MP3(filename)
@@ -209,6 +207,7 @@ class App(object):
         self.SETPOSITION = 0
         self.window['-SONGSLIDERPOS-'].update(0)
         mixer.music.play()
+        self.window['-PAUSESONG-'].update(visible=True)
 
     def getSongPos(self):
         x = self.SETPOSITION + round(int(mixer.music.get_pos()/1000), 2)
@@ -222,27 +221,50 @@ class App(object):
         self.CURSONGTIME = round(int(mixer.music.get_pos()/1000), 2) + self.SETPOSITION
         x = self.values['-SONGSLIDERPOS-']
         self.window['-SONGLENGTHDURATIONTEXT-'].update(f'Song Time: {self.DurationFromSeconds(x)} of {self.DurationFromSeconds(self.SONGLENGTH)}')
-        mixer.music.play(start=t)
+        mixer.music.play(start = t)
 
     def pauseSong(self):
         mixer.music.pause()
         self.getSongPos()
+        # self.window['-PAUSESONG-'].update(visible=False)
 
     def unPauseSong(self):
         mixer.music.unPause()
         self.getSongPos()
+        # self.window['-PAUSESONG-'].update(visible=True)
+
+    def stopSong(self):
+        mixer.music.stop()
+
+    def muteSong(self):
+        if not self.MUTED:
+            self.window['-MUTESONG-'].update(f'{MUTEBUTTN}')
+            self.MUTED = True
+            self.B4PAUSEDVOLUME = self.values['-VOLUMESLIDERPOS-']
+            self.window['-VOLUMESLIDERPOS-'].update(0)
+            self.set_vol(0)
+            print(f"B4PAUSEDVOLUME: {self.B4PAUSEDVOLUME}, MUTED: {self.MUTED}, VOLUME: {self.VOLUME}, window['-MUTESONG-']: {self.window['-MUTESONG-']}, window['-VOLUMESLIDERPOS-']: {self.window['-VOLUMESLIDERPOS-']}")
+        elif self.MUTED:
+            self.window['-MUTESONG-'].update(f'{SPKRBUTTN}')
+            self.MUTED = False
+            self.B4PAUSEDVOLUME = f"{self.values['-VOLUMESLIDERPOS-']}"
+            self.window['-VOLUMESLIDERPOS-'].update(self.B4PAUSEDVOLUME)
+            self.set_vol(self.B4PAUSEDVOLUME)
+            print(f"B4PAUSEDVOLUME: {self.B4PAUSEDVOLUME}, MUTED: {self.MUTED}, VOLUME: {self.VOLUME}, window['-MUTESONG-']: {self.window['-MUTESONG-']}, window['-VOLUMESLIDERPOS-']: {self.window['-VOLUMESLIDERPOS-']}")
+        else:
+            pass
 
     def stopSong(self):
         mixer.music.stop()
 
     def set_vol(self, val):
-        self.volume = self.values['-VOLUMESLIDERPOS-'] / 100 # mixer volume only accepts values between 0.00 and 1.00
-        mixer.music.set_volume(self.volume)
+        self.VOLUME = self.values['-VOLUMESLIDERPOS-'] / 100 # mixer volume only accepts values between 0.00 and 1.00
+        mixer.music.set_volume(self.VOLUME)
         self.get_vol()
-        return self.volume
+        return self.VOLUME
 
     def get_vol(self):
-        a = self.volume * 100
+        a = self.VOLUME * 100
         return round(a, 2)
 
     def main(self):
@@ -256,7 +278,11 @@ class App(object):
 
             if self.event == "-MP3SONG-":
                 # Update Song Mixer Events
-                self.LoadSong()
+                self.LoadSongs()
+
+            if self.event == "-MUTESONG-":
+                # Update Song Mixer Events
+                self.muteSong()
 
             if self.event == "-PLAYSONG-" and self.PLAYER is not None:
                 # Update Song Mixer
@@ -291,7 +317,8 @@ class App(object):
                 self.getSongPos()
                 # print(f"09 Song Time: {self.CURSONGTIME}")
                 print(f"00 self.event: {self.event} self.values: {self.values}")
-                # print(f"00 self.event: {self.event} self.values: {self.values} song position: {self.getSongPos()} {self.SONGNAME}")
+                # print(f"00 self.event: {self.event} self.values: {self.values} song position: {self.getSongPos()} {self.FILENAME}")
+                self.window.Element('-PLAYLISTBOX-').Widget.curselection()
 
 if __name__ == "__main__":
     app = App()
