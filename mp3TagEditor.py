@@ -28,11 +28,8 @@ from mutagen.id3 import IPLS as _IPLS  # IPLS [ Supported Version: 4.04 ] # Invo
 from mutagen.id3 import LINK as _LINK  # LINK [ Supported Version: 4.21 ] # Linked information
 from mutagen.id3 import MCDI as _MCDI  # MCDI [ Supported Version: 4.05 ] # Music CD identifier
 from mutagen.id3 import MLLT as _MLLT  # MLLT [ Supported Version: 4.07 ] # MPEG location lookup table
-from mutagen.id3 import MVIN as _MVIN  # MVIN [ Supported Version: 2.00 ] # iTunes Movement Number/Count
-from mutagen.id3 import MVNM as _MVNM  # MVNM [ Supported Version: 2.00 ] # iTunes Movement Name
 from mutagen.id3 import OWNE as _OWNE  # OWNE [ Supported Version: 4.24 ] # Ownership frame
 from mutagen.id3 import PCNT as _PCNT  # PCNT [ Supported Version: 4.17 ] # Play counter
-from mutagen.id3 import PCST as _PCST  # PCST [ Supported Version: 2.00 ] # iTunes Podcast Flag
 from mutagen.id3 import POPM as _POPM  # POPM [ Supported Version: 4.18 ] # Popularimeter
 from mutagen.id3 import POSS as _POSS  # POSS [ Supported Version: 4.22 ] # Position synchronization frame
 from mutagen.id3 import PRIV as _PRIV  # PRIV [ Supported Version: 4.28 ] # Private frame
@@ -46,14 +43,11 @@ from mutagen.id3 import SYLT as _SYLT  # SYLT [ Supported Version: 4.10 ] # Sync
 from mutagen.id3 import SYTC as _SYTC  # SYTC [ Supported Version: 4.08 ] # Synchronized tempo codes
 from mutagen.id3 import TALB as _TALB  # TALB [ Supported Version: 2.00 ] # Album/Movie/Show title
 from mutagen.id3 import TBPM as _TBPM  # TBPM [ Supported Version: 2.00 ] # BPM (beats per minute)
-from mutagen.id3 import TCAT as _TCAT  # TCAT [ Supported Version: 2.00 ] # iTunes Podcast Category
-from mutagen.id3 import TCMP as _TCMP  # TCMP [ Supported Version: 2.00 ] # iTunes Compilation Flag
 from mutagen.id3 import TCOM as _TCOM  # TCOM [ Supported Version: 2.00 ] # Composer
 from mutagen.id3 import TCON as _TCON  # TCON [ Supported Version: 2.00 ] # Content type
 from mutagen.id3 import TCOP as _TCOP  # TCOP [ Supported Version: 2.00 ] # Copyright message
 from mutagen.id3 import TDAT as _TDAT  # TDAT [ Supported Version: 2.00 ] # Date
 from mutagen.id3 import TDEN as _TDEN  # TDEN [ Supported Version: 2.00 ] # Encoding Time
-from mutagen.id3 import TDES as _TDES  # TDES [ Supported Version: 2.00 ] # iTunes Podcast Description
 from mutagen.id3 import TDLY as _TDLY  # TDLY [ Supported Version: 2.00 ] # Playlist delay
 from mutagen.id3 import TDOR as _TDOR  # TDOR [ Supported Version: 2.00 ] # Original Release Time
 from mutagen.id3 import TDRC as _TDRC  # TDRC [ Supported Version: 2.00 ] # Recording Time
@@ -62,7 +56,6 @@ from mutagen.id3 import TDTG as _TDTG  # TDTG [ Supported Version: 2.00 ] # Tagg
 from mutagen.id3 import TENC as _TENC  # TENC [ Supported Version: 2.00 ] # Encoded by
 from mutagen.id3 import TEXT as _TEXT  # TEXT [ Supported Version: 2.00 ] # Lyricist/Text writer
 from mutagen.id3 import TFLT as _TFLT  # TFLT [ Supported Version: 2.00 ] # File type
-from mutagen.id3 import TGID as _TGID  # TGID [ Supported Version: 2.00 ] # iTunes Podcast Identifier
 from mutagen.id3 import TIME as _TIME  # TIME [ Supported Version: 2.00 ] # Time
 from mutagen.id3 import TIPL as _TIPL  # TIPL [ Supported Version: 2.00 ] # Involved People List
 from mutagen.id3 import TIT1 as _TIT1  # TIT1 [ Supported Version: 2.00 ] # Content group description
@@ -93,9 +86,7 @@ from mutagen.id3 import TRDA as _TRDA  # TRDA [ Supported Version: 2.00 ] # Reco
 from mutagen.id3 import TRSN as _TRSN  # TRSN [ Supported Version: 2.00 ] # Internet radio station name
 from mutagen.id3 import TRSO as _TRSO  # TRSO [ Supported Version: 2.00 ] # Internet radio station owner
 from mutagen.id3 import TSIZ as _TSIZ  # TSIZ [ Supported Version: 2.00 ] # Size
-from mutagen.id3 import TSO2 as _TSO2  # TSO2 [ Supported Version: 2.00 ] # iTunes Album Artist Sort
 from mutagen.id3 import TSOA as _TSOA  # TSOA [ Supported Version: 2.00 ] # Album Sort Order key
-from mutagen.id3 import TSOC as _TSOC  # TSOC [ Supported Version: 2.00 ] # iTunes Composer Sort
 from mutagen.id3 import TSOP as _TSOP  # TSOP [ Supported Version: 2.00 ] # Perfomer Sort Order key
 from mutagen.id3 import TSOT as _TSOT  # TSOT [ Supported Version: 2.00 ] # Title Sort Order key
 from mutagen.id3 import TSRC as _TSRC  # TSRC [ Supported Version: 2.00 ] # ISRC (international standard recording code)
@@ -108,8 +99,6 @@ from mutagen.id3 import USER as _USER  # USER [ Supported Version: 4.23 ] # Term
 from mutagen.id3 import USLT as _USLT  # USLT [ Supported Version: 4.09 ] # UnSychronized lyric/text transcription
 from mutagen.id3 import WCOM as _WCOM  # WCOM [ Supported Version: 2.00 ] # Commercial information
 from mutagen.id3 import WCOP as _WCOP  # WCOP [ Supported Version: 2.00 ] # Copyright/Legal information
-from mutagen.id3 import GRP1 as _GRP1  # GRP1 [ Supported Version: 2.00 ] # iTunes Grouping
-from mutagen.id3 import WFED as _WFED  # WFED [ Supported Version: 2.00 ] # iTunes Podcast Feed
 from mutagen.id3 import WOAF as _WOAF  # WOAF [ Supported Version: 2.00 ] # Official audio file webpage
 from mutagen.id3 import WOAR as _WOAR  # WOAR [ Supported Version: 2.00 ] # Official artist/performer webpage
 from mutagen.id3 import WOAS as _WOAS  # WOAS [ Supported Version: 2.00 ] # Official audio source webpage
@@ -117,6 +106,17 @@ from mutagen.id3 import WORS as _WORS  # WORS [ Supported Version: 2.00 ] # Offi
 from mutagen.id3 import WPAY as _WPAY  # WPAY [ Supported Version: 2.00 ] # Payment
 from mutagen.id3 import WPUB as _WPUB  # WPUB [ Supported Version: 2.00 ] # Publishers official webpage
 from mutagen.id3 import WXXX as _WXXX  # WXXX [ Supported Version: 2.00 ] # User defined URL link frame
+from mutagen.id3 import GRP1 as _GRP1  # GRP1 [ Supported Version: 2.00 ] # iTunes Grouping
+from mutagen.id3 import MVIN as _MVIN  # MVIN [ Supported Version: 2.00 ] # iTunes Movement Number/Count
+from mutagen.id3 import MVNM as _MVNM  # MVNM [ Supported Version: 2.00 ] # iTunes Movement Name
+from mutagen.id3 import PCST as _PCST  # PCST [ Supported Version: 2.00 ] # iTunes Podcast Flag
+from mutagen.id3 import TCAT as _TCAT  # TCAT [ Supported Version: 2.00 ] # iTunes Podcast Category
+from mutagen.id3 import TCMP as _TCMP  # TCMP [ Supported Version: 2.00 ] # iTunes Compilation Flag
+from mutagen.id3 import TDES as _TDES  # TDES [ Supported Version: 2.00 ] # iTunes Podcast Description
+from mutagen.id3 import TGID as _TGID  # TGID [ Supported Version: 2.00 ] # iTunes Podcast Identifier
+from mutagen.id3 import TSO2 as _TSO2  # TSO2 [ Supported Version: 2.00 ] # iTunes Album Artist Sort
+from mutagen.id3 import TSOC as _TSOC  # TSOC [ Supported Version: 2.00 ] # iTunes Composer Sort
+from mutagen.id3 import WFED as _WFED  # WFED [ Supported Version: 2.00 ] # iTunes Podcast Feed
 
 from mutagen.id3 import BUF
 from mutagen.id3 import CNT
@@ -191,377 +191,6 @@ from mutagen.id3 import WCP
 from mutagen.id3 import WPB
 from mutagen.id3 import WXX
 
-# =====================================================================================================================
-# Four Character Imports
-# https://pypi.org/project/mutagen/1.45.1/
-# https://mutagen.readthedocs.io/en/latest/changelog.html
-# https://mutagen.readthedocs.io/en/latest/api/id3_frames.html?highlight=Group%20identification%20registration
-# =============================================================================
-# Notes:
-# TODO: Share here when done  & https://stackoverflow.com/q/18248200/1896134
-# TODO: embed album art in an MP3
-# TODO: Produced By Tom MacDonald
-# TODO: Written By Tom MacDonald
-# TODO: Mixing Engineer Evan Morgan
-# TODO: Mastering Engineer Evan Morgan
-# TODO: Release Date December 25, 2020
-# =====================================================================================================================
-
-
-class MP3TagYourSong(object):
-    """MP3TagYourSong Handle Getters & Setters for Mutagen ID3 Tags"""
-
-    def __init__(self, arg: str):
-        super(MP3TagYourSong, self).__init__()
-        self.songpath = arg  # Full File Path To MP3.
-        self.sync_lyrics = [('', 0), ('', 0)]
-        self.checkFileTag   = ''
-        self.SongArtistName = ''
-        self.SongAlbumName  = ''
-        self.SongTitleName  = ''
-        self.SongPlayCount  = 0
-        self.SongSyncLyrcs  = ''
-        self.SongPlainLyrcs = ''
-        self.SongDuration   = 0
-        self.MP3HNDLR       = self.SetMP3Handle()
-        self.ID3HNDLR       = self.SetID3Handle()
-        self.startFiredUp()
-
-    # =====================================================================================================================
-    # Tag Checkers
-    # =====================================================================================================================
-    def startFiredUp(self):
-        self.SongArtistName = self.getSongArtist()
-        self.SongAlbumName = self.getSongAlbum()
-        self.SongTitleName = self.getSongName()
-        self.SongPlayCount = self.getSongPlayCount()
-        self.SongSyncLyrcs = self.getSongSyncedLyrics()
-        self.SongPlainLyrcs = self.getSongUnSyncedLyrics()
-        self.SongDuration = self.getSongDuration()
-
-
-    def CreateMissingTag(self):
-        """Credit: https://github.com/quodlibet/mutagen/issues/327#issuecomment-339316014"""
-        try:
-            mp3 = MP3(self.songpath)
-            if mp3.tags is None:
-                print(f"No ID3 Header or Tags Exist.")
-                mp3.add_tags()
-                print(f"Default Placeholder Tags Were Created.")
-            tags = mp3.tags
-            mp3.save()
-        except Exception as e:
-            print(f"{e}")
-
-
-    def CheckID3Tag(self):
-        """Check for Header Size."""
-        try:
-            # print header data
-            with open(self.songpath, 'rb') as a:
-                data = a.read(10)
-                # print(data)
-            # print header data check
-            with open(self.songpath, 'rb') as a:
-                if data[0:3] != b'ID3':
-                    print('No ID3 header present in file.')
-                else:
-                    size_encoded = bytearray(data[-4:])
-                    size = functools.reduce(lambda a, b: (a * 128 + b), size_encoded, 0)
-                    # print(size)
-        except Exception as e:
-            print(f"Error: {e}")
-
-
-    def convertID3Tags2to3(self):
-        """Update The ID3 Tags In The Files."""
-        try:
-            self.ID3HNDLR.update_to_v24()
-            self.ID3HNDLR.save(v1=2, v2_version=4, v23_sep='/')
-        except Exception as e:
-            print(f"Error: {e}")
-
-
-    def duration_from_seconds(self, s):
-        """Module to get the convert Seconds to a time like format."""
-        s = s
-        m, s = divmod(s, 60)
-        h, m = divmod(m, 60)
-        d, h = divmod(h, 24)
-        TIMELAPSED  = f"{d:03.0f}:{h:02.0f}:{m:02.0f}:{s:02.0f}"
-        return TIMELAPSED
-
-
-    # =====================================================================================================================
-    # Tag Delete ALL
-    # =====================================================================================================================
-
-
-    def deleteAllTags(self):
-        """Remove All ID3 Tags From A File Including The ID3 Header."""
-        self.ID3HNDLR.delete(self.songpath)
-        self.ID3HNDLR.save()
-        return
-
-    # =====================================================================================================================
-    # Getters
-    # =====================================================================================================================
-    def getOneSongToEdit(self):
-        """JayRizzo Music Song Meta Mixer."""
-        self.songpath = askopenfilename(initialdir=f"{self.CWDIR}/Music/",
-                                        title="Choose A Song:",
-                                        filetypes=[("MP3", "*.mp3"),
-                                                   ("AAC Audio Files", "*.aac"),
-                                                   ("AIFF Audio Files", "*.aiff"),
-                                                   ("MPEG Audio Files", "*.mpeg"),
-                                                   ("Protected Audio Files", "*.m4a"),
-                                                   ("all", "*.*")])
-        return self.songpath
-
-
-    def getSongName(self):
-        """Show Song Song Name/Title."""
-        try:
-            self.SongTitleName = f"{self.ID3HNDLR.getall('TIT2')[0][0]}"
-        except IndexError as e:
-            self.SongTitleName = ''
-        except ID3NoHeaderError as e:
-            self.CreateMissingTag()
-            self.SongTitleName = ''
-        except Exception as e:
-            print(f"Error: {e}")
-        return self.SongTitleName
-
-
-    def getSongArtist(self):
-        """Show Song Artist Name."""
-        try:
-            self.SongArtistName = f"{self.ID3HNDLR.getall('TPE1')[0][0]}"
-        except IndexError as e:
-            self.SongArtistName
-        except ID3NoHeaderError as e:
-            self.CreateMissingTag()
-            self.SongArtistName = ''
-        except Exception as e:
-            print(f"Error: {e}")
-        return self.SongArtistName
-
-
-    def getSongAlbum(self):
-        """Show Song Album Name."""
-        try:
-            self.SongAlbumName = f"{self.ID3HNDLR.getall('TALB')[0][0]}"
-        except IndexError as e:
-            self.SongAlbumName = ''
-        except ID3NoHeaderError as e:
-            self.CreateMissingTag()
-            self.SongAlbumName = ''
-        except Exception as e:
-            print(f"Error: {e}")
-        return self.SongAlbumName
-
-
-    def getSongPlayCount(self):
-        """Show Song Play Count."""
-        try:
-            self.SongPlayCount = f"{self.ID3HNDLR.getall('PCNT')[0].count}"
-        except IndexError as e:
-            self.SongPlayCount = 0
-        except ID3NoHeaderError as e:
-            self.CreateMissingTag()
-            self.SongPlayCount = 0
-        except Exception as e:
-            print(f"Error: {e}")
-        return self.SongPlayCount
-
-
-    def getSongYear(self):
-        """Show Song Play Count."""
-        try:
-            self.SongYear = f"{self.ID3HNDLR.getall('TYER')[0][0]}"
-        except IndexError as e:
-            self.SongYear = 0
-        except ID3NoHeaderError as e:
-            self.CreateMissingTag()
-            self.SongYear = 0
-        except Exception as e:
-            print(f"Error: {e}")
-        return self.SongYear
-
-
-    def getSongSyncedLyrics(self):
-        """Show Synced Lyrics."""
-        try:
-            self.SongSyncLyrcs = self.ID3HNDLR.get('SYLT::eng')
-        except IndexError as e:
-            self.SongSyncLyrcs = ''
-        except ID3NoHeaderError as e:
-            self.CreateMissingTag()
-            self.SongSyncLyrcs = ''
-        except Exception as e:
-            print(f"Error: {e}")
-        return self.SongSyncLyrcs
-
-
-    def getSongUnSyncedLyrics(self):
-        """Show UnSynced Lyrics."""
-        try:
-            self.SongPlainLyrcs = self.ID3HNDLR.get('USLT')
-            print(f"{self.ID3HNDLR.get('USLT')}")
-        except IndexError as e:
-            self.SongPlainLyrcs = ''
-        except ID3NoHeaderError as e:
-            self.CreateMissingTag()
-            self.SongPlainLyrcs = ''
-        except Exception as e:
-            print(f"Error: {e}")
-        return self.SongPlainLyrcs
-
-    def getSongDuration(self):
-        self.SetID3Handle()
-        return self.MP3HNDLR.info.length
-
-    def getSongBPM(self):
-        """
-            Input: filename, BPM (int)
-            Example: setSongUnSyncedLyrics('song', 'Some Lyics add Some More Lyics, add as many as you'd like')
-        """
-        try:
-            self.SongBPM = f"{self.ID3HNDLR.getall('TBPM')[0][0]}"
-        except IndexError as e:
-            self.SongBPM = 0
-        except ID3NoHeaderError as e:
-            self.CreateMissingTag()
-            self.SongBPM = 0
-        except Exception as e:
-            print(f"Error: {e}")
-        return self.SongBPM
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    # =====================================================================================================================
-    # Tag Setters
-    # =====================================================================================================================
-
-
-    def SetMP3Handle(self):
-        """
-            Input: (None)
-            Example: SetMP3Handle(self)
-        """
-        self.MP3HNDLR = MP3(self.songpath)
-        return self.MP3HNDLR
-
-
-    def SetID3Handle(self):
-        """
-            Input: (None)
-            Example: SetID3Handle(self)
-        """
-        self.ID3HNDLR = ID3(self.songpath)
-        return self.ID3HNDLR
-
-
-    def setSongArtist(self, ArtistName: str):
-        """
-            Input: filename, ArtistName (STRING)
-            Example: setSongArtist('song', 'Artist Name')
-        """
-        self.SongArtistName = ArtistName
-        self.ID3HNDLR.add(_TPE1(encoding=Encoding.UTF16, text=[ArtistName]))
-        self.ID3HNDLR.save(v1=1, v2_version=4, v23_sep='/')
-
-
-    def setSongAlbum(self, AlbumName: str):
-        """
-            Input: filename, AlbumName (STRING)
-            Example: setSongAlbum('song', 'Album Name')
-        """
-        self.SongAlbumName = AlbumName
-        self.ID3HNDLR.add(_TALB(encoding=Encoding.UTF16, text=[AlbumName]))
-        self.ID3HNDLR.save(v1=1, v2_version=4, v23_sep='/')
-
-
-    def setSongTitle(self, SongTitle: str):
-        """
-            Input: filename, SongTitle (STRING)
-            Example: setSongTitle('song', 'Song Title')
-        """
-        self.ID3HNDLR.add(_TIT2(encoding=Encoding.UTF16, text=[SongTitle]))
-        self.ID3HNDLR.save(v1=1, v2_version=4, v23_sep='/')
-
-
-    def setSongPlayCount(self, PlayCount: int):
-        """
-            Input: filename, PlayCount (INTEGER)
-            Example: setSongPlayCount('song', 1531]
-        """
-        self.ID3HNDLR.add(_PCNT(encoding=3, count=PlayCount))
-        self.ID3HNDLR.save(v1=1, v2_version=4, v23_sep='/')
-
-
-    def setSongSyncedLyrics(self, sync_lyrics : list):
-        """
-            Input: filename, sync_lyrics  list((TupledPairs, 1042), (TupledPairs, 2042), (TupledPairs, 3042))
-            Example: setSongSyncedLyrics('song', [('Some Lyics at time in MilliSeconds', 1000), ('Some More Lyics, add as many as you'd like, 2000)]
-        """
-        slrcs = sync_lyrics
-        self.ID3HNDLR.setall("SYLT", [SYLT(encoding=Encoding.UTF16, lang='eng', format=2, type=1, text=slrcs)])
-        self.ID3HNDLR.save(v1=1, v2_version=4, v23_sep='/')
-
-
-    def setSongUnSyncedLyrics(self, lyrics : str):
-        """
-            Input: filename, sync_lyrics (String)
-            Example: setSongUnSyncedLyrics('song', 'Some Lyics add Some More Lyics, add as many as you'd like')
-        """
-        slrcs = lyrics
-        self.ID3HNDLR.setall("USLT", [USLT(encoding=Encoding.UTF16, lang='eng', format=2, type=1, text=slrcs)])
-        self.ID3HNDLR.save(v1=1, v2_version=4, v23_sep='/')
-
-
-    def setSongBPM(self, bpm : int):
-        """
-            Input: filename, BPM (int)
-            Example: setSongUnSyncedLyrics('song', 'Some Lyics add Some More Lyics, add as many as you'd like')
-        """
-        sBPM = bpm
-        self.ID3HNDLR.add(_TBPM(encoding=3, speed=sBPM))
-        # self.ID3HNDLR.setall("TBPM", [TBPM(encoding=Encoding.UTF16, lang='eng', format=2, type=1, bpm=sBPM)])
-        self.ID3HNDLR.save(v1=1, v2_version=4, v23_sep='/')
-
-
 # "TCMP": "compilation", # iTunes extension
 # "TCOM": "composer",
 # "TCOP": "copyright",
@@ -586,11 +215,308 @@ class MP3TagYourSong(object):
 # "TSRC": "isrc",
 # "TSST": "discsubtitle",
 
+class MP3TagYourSong(object):
+    """MP3TagYourSong Handle Getters & Setters for Mutagen ID3 Tags"""
+
+    def __init__(self, arg: str):
+        super(MP3TagYourSong, self).__init__()
+        self.SONGpath = arg  # Full File Path To MP3.
+        self.SYNC_LYRICS = [('', 0), ('', 0)]
+        self.SONGARTISTNAME = ''
+        self.SONGALBUMNAME  = ''
+        self.SONGTITLENAME  = ''
+        self.SONGPLAYCOUNT  = 0
+        self.SONGSYNCLYRCS  = ''
+        self.SONGPLAINLYRCS = ''
+        self.SONGDURATION   = 0
+        self.MP3HNDLR       = self.SetMP3Handle()
+        self.ID3HNDLR       = self.SetID3Handle()
+        self.startFiredUp()
+
+    # =====================================================================================================================
+    # Tag Checkers
+    # =====================================================================================================================
+    def startFiredUp(self):
+        self.SONGARTISTNAME = self.getSongArtist()
+        self.SONGALBUMNAME = self.getSongAlbum()
+        self.SONGTITLENAME = self.getSongName()
+        self.SONGPLAYCOUNT = self.getSongPlayCount()
+        self.SONGSYNCLYRCS = self.getSongSyncedLyrics()
+        self.SONGPLAINLYRCS = self.getSongUnSyncedLyrics()
+        self.SONGDURATION = self.getSongDuration()
+
+    def CreateMissingTag(self):
+        """Credit: https://github.com/quodlibet/mutagen/issues/327#issuecomment-339316014"""
+        try:
+            mp3 = MP3(self.SONGpath)
+            if mp3.tags is None:
+                print(f"No ID3 Header or Tags Exist.")
+                mp3.add_tags()
+                print(f"Default Placeholder Tags Were Created.")
+            tags = mp3.tags
+            mp3.save()
+        except Exception as e:
+            print(f"{e}")
+
+    def CheckID3Tag(self):
+        """Check for Header Size."""
+        try:
+            # print header data
+            with open(self.SONGpath, 'rb') as a:
+                data = a.read(10)
+                # print(data)
+            # print header data check
+            with open(self.SONGpath, 'rb') as a:
+                if data[0:3] != b'ID3':
+                    print('No ID3 header present in file.')
+                else:
+                    size_encoded = bytearray(data[-4:])
+                    size = functools.reduce(lambda a, b: (a * 128 + b), size_encoded, 0)
+                    # print(size)
+        except Exception as e:
+            print(f"Error: {e}")
+
+    def convertID3Tags2to3(self):
+        """Update The ID3 Tags In The Files."""
+        try:
+            self.ID3HNDLR.update_to_v24()
+            self.ID3HNDLR.save(v1=2, v2_version=4, v23_sep='/')
+        except Exception as e:
+            print(f"Error: {e}")
+
+    def duration_from_seconds(self, s):
+        """Module to get the convert Seconds to a time like format."""
+        s = s
+        m, s = divmod(s, 60)
+        h, m = divmod(m, 60)
+        d, h = divmod(h, 24)
+        TIMELAPSED  = f"{d:03.0f}:{h:02.0f}:{m:02.0f}:{s:02.0f}"
+        return TIMELAPSED
+
+    # =====================================================================================================================
+    # Tag Delete ALL
+    # =====================================================================================================================
+
+    def deleteAllTags(self):
+        """Remove All ID3 Tags From A File Including The ID3 Header."""
+        self.ID3HNDLR.delete(self.SONGpath)
+        self.ID3HNDLR.save()
+        return
+
+    # =====================================================================================================================
+    # Tag Getters
+    # =====================================================================================================================
+    def getOneSongToEdit(self):
+        """JayRizzo Music Song Meta Mixer."""
+        self.SONGpath = askopenfilename(initialdir=f"{self.CWDIR}/Music/",
+                                        title="Choose A Song:",
+                                        filetypes=[("MP3", "*.mp3"),
+                                                   ("AAC Audio Files", "*.aac"),
+                                                   ("AIFF Audio Files", "*.aiff"),
+                                                   ("MPEG Audio Files", "*.mpeg"),
+                                                   ("Protected Audio Files", "*.m4a"),
+                                                   ("all", "*.*")])
+        return self.SONGpath
+
+    def getSongName(self):
+        """Show Song Song Name/Title."""
+        try:
+            self.SONGTITLENAME = f"{self.ID3HNDLR.getall('TIT2')[0][0]}"
+        except IndexError as e:
+            self.SONGTITLENAME = ''
+        except ID3NoHeaderError as e:
+            self.CreateMissingTag()
+            self.SONGTITLENAME = ''
+        except Exception as e:
+            print(f"Error: {e}")
+        return self.SONGTITLENAME
+
+    def getSongArtist(self):
+        """Show Song Artist Name."""
+        try:
+            self.SONGARTISTNAME = f"{self.ID3HNDLR.getall('TPE1')[0][0]}"
+        except IndexError as e:
+            self.SONGARTISTNAME
+        except ID3NoHeaderError as e:
+            self.CreateMissingTag()
+            self.SONGARTISTNAME = ''
+        except Exception as e:
+            print(f"Error: {e}")
+        return self.SONGARTISTNAME
+
+    def getSongAlbum(self):
+        """Show Song Album Name."""
+        try:
+            self.SONGALBUMNAME = f"{self.ID3HNDLR.getall('TALB')[0][0]}"
+        except IndexError as e:
+            self.SONGALBUMNAME = ''
+        except ID3NoHeaderError as e:
+            self.CreateMissingTag()
+            self.SONGALBUMNAME = ''
+        except Exception as e:
+            print(f"Error: {e}")
+        return self.SONGALBUMNAME
+
+    def getSongPlayCount(self):
+        """Show Song Play Count."""
+        try:
+            self.SONGPLAYCOUNT = f"{self.ID3HNDLR.getall('PCNT')[0].count}"
+        except IndexError as e:
+            self.SONGPLAYCOUNT = 0
+        except ID3NoHeaderError as e:
+            self.CreateMissingTag()
+            self.SONGPLAYCOUNT = 0
+        except Exception as e:
+            print(f"Error: {e}")
+        return self.SONGPLAYCOUNT
+
+    def getSongYear(self):
+        """Show Song Play Count."""
+        try:
+            self.SONGYear = f"{self.ID3HNDLR.getall('TYER')[0][0]}"
+        except IndexError as e:
+            self.SONGYear = 0
+        except ID3NoHeaderError as e:
+            self.CreateMissingTag()
+            self.SONGYear = 0
+        except Exception as e:
+            print(f"Error: {e}")
+        return self.SONGYear
+
+    def getSongSyncedLyrics(self):
+        """Show Synced Lyrics."""
+        try:
+            self.SONGSYNCLYRCS = self.ID3HNDLR.get('SYLT::eng')
+        except IndexError as e:
+            self.SONGSYNCLYRCS = ''
+        except ID3NoHeaderError as e:
+            self.CreateMissingTag()
+            self.SONGSYNCLYRCS = ''
+        except Exception as e:
+            print(f"Error: {e}")
+        return self.SONGSYNCLYRCS
+
+    def getSongUnSyncedLyrics(self):
+        """Show UnSynced Lyrics."""
+        try:
+            self.SONGPLAINLYRCS = self.ID3HNDLR.get('USLT')
+            print(f"{self.ID3HNDLR.get('USLT')}")
+        except IndexError as e:
+            self.SONGPLAINLYRCS = ''
+        except ID3NoHeaderError as e:
+            self.CreateMissingTag()
+            self.SONGPLAINLYRCS = ''
+        except Exception as e:
+            print(f"Error: {e}")
+        return self.SONGPLAINLYRCS
+
+    def getSongDuration(self):
+        self.SetID3Handle()
+        return self.MP3HNDLR.info.length
+
+    def getSongBPM(self):
+        """
+            Input: filename, BPM (int)
+            Example: setSongUnSyncedLyrics('song', 'Some Lyics add Some More Lyics, add as many as you'd like')
+        """
+        try:
+            self.SONGBPM = f"{self.ID3HNDLR.getall('TBPM')[0][0]}"
+        except IndexError as e:
+            self.SONGBPM = 0
+        except ID3NoHeaderError as e:
+            self.CreateMissingTag()
+            self.SONGBPM = 0
+        except Exception as e:
+            print(f"Error: {e}")
+        return self.SONGBPM
+
+    # =====================================================================================================================
+    # Tag Setters
+    # =====================================================================================================================
+
+    def SetMP3Handle(self):
+        """
+            Input: (None)
+            Example: SetMP3Handle(self)
+        """
+        self.MP3HNDLR = MP3(self.SONGpath)
+        return self.MP3HNDLR
+
+    def SetID3Handle(self):
+        """
+            Input: (None)
+            Example: SetID3Handle(self)
+        """
+        self.ID3HNDLR = ID3(self.SONGpath)
+        return self.ID3HNDLR
+
+    def setSongArtist(self, ArtistName: str):
+        """
+            Input: filename, ArtistName (STRING)
+            Example: setSongArtist('song', 'Artist Name')
+        """
+        self.SONGARTISTNAME = ArtistName
+        self.ID3HNDLR.add(_TPE1(encoding=Encoding.UTF16, text=[ArtistName]))
+        self.ID3HNDLR.save(v1=1, v2_version=4, v23_sep='/')
+
+    def setSongAlbum(self, AlbumName: str):
+        """
+            Input: filename, AlbumName (STRING)
+            Example: setSongAlbum('song', 'Album Name')
+        """
+        self.SONGALBUMNAME = AlbumName
+        self.ID3HNDLR.add(_TALB(encoding=Encoding.UTF16, text=[AlbumName]))
+        self.ID3HNDLR.save(v1=1, v2_version=4, v23_sep='/')
+
+    def setSongTitle(self, SongTitle: str):
+        """
+            Input: filename, SongTitle (STRING)
+            Example: setSongTitle('song', 'Song Title')
+        """
+        self.ID3HNDLR.add(_TIT2(encoding=Encoding.UTF16, text=[SongTitle]))
+        self.ID3HNDLR.save(v1=1, v2_version=4, v23_sep='/')
+
+    def setSongPlayCount(self, PlayCount: int):
+        """
+            Input: filename, PlayCount (INTEGER)
+            Example: setSongPlayCount('song', 1531]
+        """
+        self.ID3HNDLR.add(_PCNT(encoding=3, count=PlayCount))
+        self.ID3HNDLR.save(v1=1, v2_version=4, v23_sep='/')
+
+    def setSongSyncedLyrics(self, sync_lyrics : list):
+        """
+            Input: filename, sync_lyrics  list((TupledPairs, 1042), (TupledPairs, 2042), (TupledPairs, 3042))
+            Example: setSongSyncedLyrics('song', [('Some Lyics at time in MilliSeconds', 1000), ('Some More Lyics, add as many as you'd like, 2000)]
+        """
+        slrcs = sync_lyrics
+        self.ID3HNDLR.setall("SYLT", [SYLT(encoding=Encoding.UTF16, lang='eng', format=2, type=1, text=slrcs)])
+        self.ID3HNDLR.save(v1=1, v2_version=4, v23_sep='/')
+
+    def setSongUnSyncedLyrics(self, lyrics : str):
+        """
+            Input: filename, sync_lyrics (String)
+            Example: setSongUnSyncedLyrics('song', 'Some Lyics add Some More Lyics, add as many as you'd like')
+        """
+        slrcs = lyrics
+        self.ID3HNDLR.setall("USLT", [USLT(encoding=Encoding.UTF16, lang='eng', format=2, type=1, text=slrcs)])
+        self.ID3HNDLR.save(v1=1, v2_version=4, v23_sep='/')
+
+    def setSongBPM(self, bpm : int):
+        """
+            Input: filename, BPM (int)
+            Example: setSongUnSyncedLyrics('song', 'Some Lyics add Some More Lyics, add as many as you'd like')
+        """
+        sBPM = bpm
+        self.ID3HNDLR.add(_TBPM(encoding=3, speed=sBPM))
+        # self.ID3HNDLR.setall("TBPM", [TBPM(encoding=Encoding.UTF16, lang='eng', format=2, type=1, bpm=sBPM)])
+        self.ID3HNDLR.save(v1=1, v2_version=4, v23_sep='/')
+
 if __name__ == '__main__':
     # =====================================================================================================================
     # Example Song
     # =====================================================================================================================
-    filename = '/Users/jkirchoff/Documents/github/MP3Player/Music/Tom MacDonald - Angels (Explicit).mp3'
+    filename = '/Users/jayrizzo/Documents/git/MP3Player/Music/Alive.mp3'
     song = MP3TagYourSong(filename)
     song.deleteAllTags()  # TUrning this on will clear all headers and you must recreate them manually.  THERE IS NO UNDO!!!!
 
@@ -609,12 +535,12 @@ if __name__ == '__main__':
     print(f"Song Total Duration(s): {song.SongDuration}")
     print()
 
-    # Setters
-    song.setSongTitle("Angels (Explicit)")
-    song.setSongArtist("Tom MacDonald")
-    song.setSongAlbum("No Guts No Glory")
-    song.setSongPlayCount(393)
-    song.setSongBPM(393)
+    # # Setters
+    # song.setSongTitle("Angels (Explicit)")
+    # song.setSongArtist("Tom MacDonald")
+    # song.setSongAlbum("No Guts No Glory")
+    # song.setSongPlayCount(393)
+    # song.setSongBPM(393)
 
     # Check the changes
     print(f"Song Title Name         {song.getSongName()}")
@@ -625,14 +551,10 @@ if __name__ == '__main__':
     print(f"Song Total Duration:    {song.duration_from_seconds(song.SongDuration)}")
     print(f"Song Total Duration(s): {song.SongDuration}")
 
-
-
-
-
     print()
     print("Second Song Modification")
     print()
-    filename2 = '/Users/jkirchoff/Documents/github/MP3Player/Music/02 Bad Girls Club.mp3'
+    filename2 = '/Users/jayrizzo/Documents/git/MP3Player/Music/8 Bit Superhero.mp3'
     song2 = MP3TagYourSong(filename2)
     song2.deleteAllTags()  # TUrning this on will clear all headers and you must recreate them manually.  THERE IS NO UNDO!!!!
 
@@ -667,39 +589,3 @@ if __name__ == '__main__':
     print(f"Song Total Duration:    {song2.duration_from_seconds(song2.SongDuration)}")
     print(f"Song Total Duration(s): {song2.SongDuration}")
     print()
-
-
-
-# Example Usage Result:
-
-# No ID3 Header or Tags Exist.
-# Default Placeholder Tags Were Created.
-# Song Title Name
-# Song Artist Name:
-# Song Album Name:
-# Song Play Count:        0
-# Song Total Duration:    000:00:03:17
-
-# Song Title Name         Angels (Explicit)
-# Song Artist Name:       Tom MacDonald
-# Song Album Name:        No Guts No Glory
-# Song Play Count:        393
-# Song Total Duration:    000:00:03:17
-
-# Second Song Modification
-
-# No ID3 Header or Tags Exist.
-# Default Placeholder Tags Were Created.
-# Song Title Name
-# Song Artist Name:
-# Song Album Name:
-# Song Play Count:        0
-# Song Total Duration:    000:00:03:42
-
-# Song Title Name         Bad Girls Club
-# Song Artist Name:       Falling In Reverse
-# Song Album Name:        Fashionably Late (Deluxe Edition)
-# Song Play Count:        393
-# Song Total Duration:    000:00:03:42
-
-# [Finished in 112ms]
