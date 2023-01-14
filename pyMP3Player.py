@@ -77,18 +77,23 @@ class App(object):
         self.MP3SONGARTIST              = ''
         self.MP3SONGALBUM               = ''
         self.MP3SONGPLAYCOUNT           = ''
-        self.right_click_menu           = ['Unused', ['&FPS', '—', 'Menu A', 'Menu B', 'Menu C', ['Menu C1', 'Menu C2'], '—', 'Exit']]
+        self.right_click_menu           = ['Unused', 
+                                            ['&FPS', '—', 'Menu A', 'Menu B', 'Menu C', 
+                                                                                    [  'Menu C1'
+                                                                                     , 'Menu C2'
+                                                                                    ]
+                                                                                , '—', 'Exit']]
+        self.menu_def = [
+                          ['File', ['Open', 'Save', 'Exit',]]
+                        , ['Edit', ['Paste', ['Special', 'Normal',], 'Undo'],]
+                        , ['Help', 'About...']
+                        ]
 
         # ========================================================================
         # ==================== Initialize the SimpleGUI Layout ===================
         # ========================================================================
         self.theme = sg.ChangeLookAndFeel('Dark')
 
-        self.menu_def = [
-                          ['File', ['Open', 'Save', 'Exit',]]
-                        , ['Edit', ['Paste', ['Special', 'Normal',], 'Undo'],]
-                        , ['Help', 'About...']
-                        ]
         self.option = sg.SetOptions (
                                       background_color = 'black'
                                     , element_background_color = 'skyBlue'
