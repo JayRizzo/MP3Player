@@ -77,8 +77,8 @@ class App(object):
         self.MP3SONGARTIST              = ''
         self.MP3SONGALBUM               = ''
         self.MP3SONGPLAYCOUNT           = ''
-        self.right_click_menu           = ['Unused', 
-                                            ['&FPS', '—', 'Menu A', 'Menu B', 'Menu C', 
+        self.right_click_menu           = ['Unused',
+                                            ['&FPS', '—', 'Menu A', 'Menu B', 'Menu C',
                                                                                     [  'Menu C1'
                                                                                      , 'Menu C2'
                                                                                     ]
@@ -88,12 +88,10 @@ class App(object):
                         , ['Edit', ['Paste', ['Special', 'Normal',], 'Undo'],]
                         , ['Help', 'About...']
                         ]
-
         # ========================================================================
         # ==================== Initialize the SimpleGUI Layout ===================
         # ========================================================================
         self.theme = sg.ChangeLookAndFeel('Dark')
-
         self.option = sg.SetOptions (
                                       background_color = 'black'
                                     , element_background_color = 'skyBlue'
@@ -103,8 +101,6 @@ class App(object):
                                     , input_text_color = 'White'
                                     , button_color = ('Blue', 'black')
                                     )
-
-
         self.column1 = [
                           [sg.Listbox(self.PLAYLSTBOX,   size = (70, 10), key = "-PLAYLISTBOX-", enable_events = True)]
                         , [sg.Slider(range = (0, 100), size = (60, 15), orientation = 'h', key = '-SONGSLIDERPOS-',    default_value = 0, disabled = True,  disable_number_display = True, enable_events = True, tick_interval = 0, pad = (20, 5))]
@@ -141,7 +137,6 @@ class App(object):
         self.window = sg.Window(F"{MUSICNOTE} JayRizzo's MP3 Player {MUSICNOTE}"
                                 , [[sg.Menu(self.menu_def)], self.Layout]
                                 , font = 'Arial 18', resizable = True, grab_anywhere = False)
-
     def DurationFromSeconds(self, s = 0):
         """
             Convert Seconds to Human Readable Time Format.
@@ -154,10 +149,8 @@ class App(object):
         y, d        = divmod(d, 365)
         PRINTZTIME  = f"{h:02.0f}:{m:02.0f}:{s:02.0f}"
         return PRINTZTIME
-
     def ImageButton(self, title, key):
         return sg.Button(title, button_color = ('#F0F0F0', '#F0F0F0'), border_width = 0, key = key)
-
     def getSongMetaData(self, filename):
         self.MP3SONGARTIST = MP3TagYourSong(self.FILENAME).getSongArtist()
         self.MP3SONGALBUM = MP3TagYourSong(self.FILENAME).getSongAlbum()
@@ -168,7 +161,6 @@ class App(object):
         self.window['-SONGALBUM-'].update(f"Album: {self.MP3SONGALBUM}")
         self.window['-SONGPLAYCOUNT-'].update(f"Plays: {self.MP3SONGPLAYCOUNT}")
         return self.MP3SONGARTIST
-
     def LoadSongs(self):
         self.PLAYLSTPTH = self.values['-MP3SONG-'].split(';')
         for i in self.values['-MP3SONG-'].split(';'):
@@ -177,7 +169,6 @@ class App(object):
             self.FILENAME = ''.join([i])
             self.PLAYLSTBOX += self.PLAYLSTPTH
             self.window['-PLAYLISTBOX-'].update([self.PLAYLSTBOX])
-
         print(f"PLAYLISTBOX: {self.PLAYLSTBOX}")
         self.setSongLength(self.FILENAME)
         self.getSongMetaData(self.FILENAME)
@@ -196,30 +187,24 @@ class App(object):
         self.window['-MUTESONG-'].update(   disabled = False, visible = True)
         self.window['-INFOSONG-'].update(   disabled = False, visible = True)
         self.window['-SONGSLIDERPOS-'].update(disabled = False, visible = True, range = (0,self.SONGLENGTH))
-
-
     def getSongLength(self, filename):
         song = MP3(filename)
         print(song.info.length)
         return song.info.length
-
     def setSongLength(self, filename):
         song = MP3(filename)
         self.SONGLENGTH = song.info.length
         return self.SONGLENGTH
-
     def playSong(self):
         self.SETPOSITION = 0
         self.window['-SONGSLIDERPOS-'].update(0)
         mixer.music.play()
         self.window['-PAUSESONG-'].update(visible=True)
-
     def getSongPos(self):
         x = self.SETPOSITION + round(int(mixer.music.get_pos()/1000), 2)
         self.window['-SONGSLIDERPOS-'].update(x)
         self.window['-SONGLENGTHDURATIONTEXT-'].update(f'Song Time: {self.DurationFromSeconds(x)} of {self.DurationFromSeconds(self.SONGLENGTH)}')
         return self.CURSONGTIME
-
     def setSongPos(self, t):
         """When you skip ahead, save the position in int(x)."""
         self.SETPOSITION = t
@@ -227,20 +212,16 @@ class App(object):
         x = self.values['-SONGSLIDERPOS-']
         self.window['-SONGLENGTHDURATIONTEXT-'].update(f'Song Time: {self.DurationFromSeconds(x)} of {self.DurationFromSeconds(self.SONGLENGTH)}')
         mixer.music.play(start = t)
-
     def pauseSong(self):
         mixer.music.pause()
         self.getSongPos()
         # self.window['-PAUSESONG-'].update(visible=False)
-
     def unPauseSong(self):
         mixer.music.unPause()
         self.getSongPos()
         # self.window['-PAUSESONG-'].update(visible=True)
-
     def stopSong(self):
         mixer.music.stop()
-
     def muteSong(self):
         if not self.MUTED:
             self.window['-MUTESONG-'].update(f'{MUTEBUTTN}')
@@ -258,64 +239,50 @@ class App(object):
             print(f"B4PAUSEDVOLUME: {self.B4PAUSEDVOLUME}, MUTED: {self.MUTED}, VOLUME: {self.VOLUME}, window['-MUTESONG-']: {self.window['-MUTESONG-']}, window['-VOLUMESLIDERPOS-']: {self.window['-VOLUMESLIDERPOS-']}")
         else:
             pass
-
     def stopSong(self):
         mixer.music.stop()
-
     def set_vol(self, val):
         self.VOLUME = self.values['-VOLUMESLIDERPOS-'] / 100 # mixer volume only accepts values between 0.00 and 1.00
         mixer.music.set_volume(self.VOLUME)
         self.get_vol()
         return self.VOLUME
-
     def get_vol(self):
         a = self.VOLUME * 100
         return round(a, 2)
-
     def main(self):
         # Create an self.event loop
         while True:
             self.event, self.values = self.window.read(500)
-
             if self.event == "OK" or self.event == sg.WIN_CLOSED:
                 # END PROGRAM IF USER CLOSES WINDOW
                 break
-
             if self.event == "-MP3SONG-":
                 # Update Song Mixer Events
                 self.LoadSongs()
-
             if self.event == "-MUTESONG-":
                 # Update Song Mixer Events
                 self.muteSong()
-
             if self.event == "-PLAYSONG-" and self.PLAYER is not None:
                 # Update Song Mixer
                 self.playSong()
-
             if self.event == "-PLAYLISTBOX-" and self.PLAYER is not None:
                 # Update Song Mixer
                 print(f"03 PLAYLISTBOX.event: {self.event}  self.values: {self.values}")
-
             if self.event == "-PAUSESONG-" and self.PLAYER is not None:
                 # Update Song Mixer
                 print(f"06 self.values: {self.values}")
                 self.pauseSong()
-
             if self.event == "-STOPSONG-" and self.PLAYER is not None:
                 # Update Song Mixer
                 print(f"08 self.values: {self.values}")
                 self.stopSong()
-
             if self.event == "-VOLUMESLIDERPOS-":
                 self.set_vol(self.values['-VOLUMESLIDERPOS-'])
                 print(f"09 self.SET VOLUMEN: {self.values}")
-
             if self.event == "-SONGSLIDERPOS-" and self.PLAYER is not None:
                 # Update Slider After Manual Update
                 print(f"08 self.values: {self.values}")
                 self.setSongPos(self.values['-SONGSLIDERPOS-'])
-
             else:
                 # Update Slider
                 self.CURSONGTIME = round(int(mixer.music.get_pos()/1000), 2)

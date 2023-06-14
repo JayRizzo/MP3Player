@@ -8,11 +8,12 @@
 # Last ModDate: Tue Sep 27 17:50:01 2022 CDT
 # =============================================================================
 import functools  # Reduce - Required for ID3 Header Checks
+import json
 from mutagen.mp3 import MP3
 from mutagen.id3 import ID3
 from mutagen.id3 import ID3NoHeaderError  # Required for catching errors when no ID3 tag exists on the file.
 from mutagen.id3 import Encoding  # Required for SYLT SYNC'D Lyrics
-from mutagen.id3 import AENC as _AENC # AENC [ Supported Version: 4.20 ] # id3.AENC(owner='', preview_start=0, preview_length=0, data='')
+from mutagen.id3 import AENC as _AENC  # AENC [ Supported Version: 4.20 ] # id3.AENC(owner='', preview_start=0, preview_length=0, data='')
 from mutagen.id3 import APIC as _APIC  # APIC [ Supported Version: 4.20 ] # Attached (or linked) Picture. id3.add(_APIC(encoding=3, mime=u'image/jpeg', type=3, desc=u'Front Cover', data=self.get_cover(info)))  Example2# id3.add(_APIC(encoding=3, mime=u'image/jpg', type=3, desc=u'Cover', data=self.get_cover(info['album_pic_url'])))
 from mutagen.id3 import ASPI as _ASPI  # ASPI [ Supported Version: 2.00 ] # Audio seek point index. Attributes: S, L, N, b, and Fi. For the meaning of these, see the ID3v2.4 specification. Fi is a list of integers.
 from mutagen.id3 import CHAP as _CHAP  # CHAP [ Supported Version: 2.00 ] # Chapter propertyHashKey An internal key used to ensure frame uniqueness in a tag
@@ -220,17 +221,20 @@ class MP3TagYourSong(object):
 
     def __init__(self, arg: str):
         super(MP3TagYourSong, self).__init__()
-        self.SONGpath = arg  # Full File Path To MP3.
-        self.SYNC_LYRICS = [('', 0), ('', 0)]
-        self.SONGARTISTNAME = ''
-        self.SONGALBUMNAME  = ''
-        self.SONGTITLENAME  = ''
-        self.SONGPLAYCOUNT  = 0
-        self.SONGSYNCLYRCS  = ''
-        self.SONGPLAINLYRCS = ''
-        self.SONGDURATION   = 0
-        self.MP3HNDLR       = self.SetMP3Handle()
-        self.ID3HNDLR       = self.SetID3Handle()
+        self.SONGPATH               = arg  # Full File Path To MP3.
+        self.SYNC_LYRICS            = [('', 0), ('', 0)]
+        self.SONGARTISTNAME         = ''
+        self.SONGALBUMNAME          = ''
+        self.SONGALBUMARTISTNAME    = ''
+        self.SONGORIGINALARTISTNAME = ''
+        self.SONGARTISTURL          = ''
+        self.SONGTITLENAME          = ''
+        self.SONGPLAYCOUNT          = 0
+        self.SONGSYNCLYRCS          = ''
+        self.SONGPLAINLYRCS         = ''
+        self.SONGDURATION           = 0
+        self.MP3HNDLR               = self.SetMP3Handle()
+        self.ID3HNDLR               = self.SetID3Handle()
         self.startFiredUp()
 
     # =====================================================================================================================
@@ -248,7 +252,7 @@ class MP3TagYourSong(object):
     def CreateMissingTag(self):
         """Credit: https://github.com/quodlibet/mutagen/issues/327#issuecomment-339316014"""
         try:
-            mp3 = MP3(self.SONGpath)
+            mp3 = MP3(self.SONGPATH)
             if mp3.tags is None:
                 print(f"No ID3 Header or Tags Exist.")
                 mp3.add_tags()
@@ -262,11 +266,11 @@ class MP3TagYourSong(object):
         """Check for Header Size."""
         try:
             # print header data
-            with open(self.SONGpath, 'rb') as a:
+            with open(self.SONGPATH, 'rb') as a:
                 data = a.read(10)
                 # print(data)
             # print header data check
-            with open(self.SONGpath, 'rb') as a:
+            with open(self.SONGPATH, 'rb') as a:
                 if data[0:3] != b'ID3':
                     print('No ID3 header present in file.')
                 else:
@@ -299,7 +303,7 @@ class MP3TagYourSong(object):
 
     def deleteAllTags(self):
         """Remove All ID3 Tags From A File Including The ID3 Header."""
-        self.ID3HNDLR.delete(self.SONGpath)
+        self.ID3HNDLR.delete(self.SONGPATH)
         self.ID3HNDLR.save()
         return
 
@@ -308,7 +312,7 @@ class MP3TagYourSong(object):
     # =====================================================================================================================
     def getOneSongToEdit(self):
         """JayRizzo Music Song Meta Mixer."""
-        self.SONGpath = askopenfilename(initialdir=f"{self.CWDIR}/Music/",
+        self.SONGPATH = askopenfilename(initialdir=f"{self.CWDIR}/Music/",
                                         title="Choose A Song:",
                                         filetypes=[("MP3", "*.mp3"),
                                                    ("AAC Audio Files", "*.aac"),
@@ -316,7 +320,7 @@ class MP3TagYourSong(object):
                                                    ("MPEG Audio Files", "*.mpeg"),
                                                    ("Protected Audio Files", "*.m4a"),
                                                    ("all", "*.*")])
-        return self.SONGpath
+        return self.SONGPATH
 
     def getSongName(self):
         """Show Song Song Name/Title."""
@@ -343,6 +347,45 @@ class MP3TagYourSong(object):
         except Exception as e:
             print(f"Error: {e}")
         return self.SONGARTISTNAME
+
+    def getSongArtistURL(self):
+        """Show Song Artist URL."""
+        try:
+            self.SONGARTISTURL = f"{self.ID3HNDLR.getall('_WXXX')[0][0]}"
+        except IndexError as e:
+            self.SONGARTISTURL
+        except ID3NoHeaderError as e:
+            self.CreateMissingTag()
+            self.SONGARTISTURL = ''
+        except Exception as e:
+            print(f"Error: {e}")
+        return self.SONGARTISTURL
+
+    def getSongAlbumArtist(self):
+        """Show Song Artist Name."""
+        try:
+            self.SONGALBUMARTISTNAME = f"{self.ID3HNDLR.getall('_TOAL')[0][0]}"
+        except IndexError as e:
+            self.SONGALBUMARTISTNAME
+        except ID3NoHeaderError as e:
+            self.CreateMissingTag()
+            self.SONGALBUMARTISTNAME = ''
+        except Exception as e:
+            print(f"Error: {e}")
+        return self.SONGALBUMARTISTNAME
+
+    def getSongOriginalArtist(self):
+        """Show Song Artist Name."""
+        try:
+            self.SONGORIGINALARTISTNAME = f"{self.ID3HNDLR.getall('_TOPE')[0][0]}"
+        except IndexError as e:
+            self.SONGORIGINALARTISTNAME
+        except ID3NoHeaderError as e:
+            self.CreateMissingTag()
+            self.SONGORIGINALARTISTNAME = ''
+        except Exception as e:
+            print(f"Error: {e}")
+        return self.SONGORIGINALARTISTNAME
 
     def getSongAlbum(self):
         """Show Song Album Name."""
@@ -439,7 +482,7 @@ class MP3TagYourSong(object):
             Input: (None)
             Example: SetMP3Handle(self)
         """
-        self.MP3HNDLR = MP3(self.SONGpath)
+        self.MP3HNDLR = MP3(self.SONGPATH)
         return self.MP3HNDLR
 
     def SetID3Handle(self):
@@ -447,7 +490,7 @@ class MP3TagYourSong(object):
             Input: (None)
             Example: SetID3Handle(self)
         """
-        self.ID3HNDLR = ID3(self.SONGpath)
+        self.ID3HNDLR = ID3(self.SONGPATH)
         return self.ID3HNDLR
 
     def setSongArtist(self, ArtistName: str):
@@ -512,35 +555,74 @@ class MP3TagYourSong(object):
         # self.ID3HNDLR.setall("TBPM", [TBPM(encoding=Encoding.UTF16, lang='eng', format=2, type=1, bpm=sBPM)])
         self.ID3HNDLR.save(v1=1, v2_version=4, v23_sep='/')
 
+    def exportJSON(self):
+        song.getSongName()
+        song.getSongName()
+        song.getSongArtist()
+        song.getSongAlbum()
+        song.getSongAlbumArtist()
+        song.getSongOriginalArtist()
+        song.getSongArtistURL()
+        song.getSongPlayCount()
+        song.getSongBPM()
+        song.duration_from_seconds(song.getSongDuration())
+        song.getSongDuration()
+        song_dictionary = {
+                    "TagVersion": f"{str(self.ID3HNDLR.version[0] or 0)}.{str(self.ID3HNDLR.version[1] or 0)}.{str(self.ID3HNDLR.version[2] or 0)}",
+                    "SongDuration_Seconds": f"{str(self.SONGDURATION or '')}",
+                    "SongDuration_DHMS": f"{str(song.duration_from_seconds(song.getSongDuration()) or '')}",
+                    "Title": f"{str(self.SONGTITLENAME or '')}",
+                    "Artist": f"{str(self.SONGARTISTNAME or '')}",
+                    "Album Artist": f"{str(self.SONGALBUMARTISTNAME or '')}",
+                    "Artist Origin": f"{str(self.SONGORIGINALARTISTNAME or '')}",
+                    "Album": f"{str(self.SONGALBUMNAME or '')}",
+                    "Album Url": f"{str(self.SONGARTISTURL or '')}",
+                    # "Album Type": f"{str(tag.album_type or '')}",
+                    # "Track Number": f"{str(tag.track_num[0] or 0)},{str(tag.track_num[1] or 0)}",
+                    # "Track Number_1": f"{str(tag.track_num[0] or '')}",
+                    # "Track Number_2": f"{str(tag.track_num[1] or '')}",
+
+                    # "Genre": f"{str(self.Genre() or '')}",
+                    # "GenreID": f"{str(tag.genre.id or '')}",
+                    "track_path": f"{self.SONGPATH}",
+                    },
+        j = json.dumps(song_dictionary, indent=4)
+        print(f"{j}")
+
 if __name__ == '__main__':
     # =====================================================================================================================
     # Example Song
     # =====================================================================================================================
-    filename = '/Users/jayrizzo/Documents/git/MP3Player/Music/Alive.mp3'
+    # filename = '/Users/jayrizzo/Documents/git/MP3Player/Music/Alive.mp3'
+    filename = '/Users/jayrizzo/Desktop/06 Chop Suey! copy.mp3'
     song = MP3TagYourSong(filename)
-    song.deleteAllTags()  # TUrning this on will clear all headers and you must recreate them manually.  THERE IS NO UNDO!!!!
+    song.deleteAllTags()  # WARNING: USING THIS WILL CLEAR ALL HEADERS AND YOU MUST RECREATE THEM MANUALLY.  THERE IS NO UNDO!!!!
 
     # Checkers
     song.CreateMissingTag()
     song.CheckID3Tag()
     song.convertID3Tags2to3()
 
-    # Getters
-    print(f"Song Title Name         {song.getSongName()}")
-    print(f"Song Artist Name:       {song.getSongArtist()}")
-    print(f"Song Album Name:        {song.getSongAlbum()}")
-    print(f"Song Play Count:        {song.getSongPlayCount()}")
-    print(f"Song BPM:               {song.getSongBPM()}")
-    print(f"Song Total Duration:    {song.duration_from_seconds(song.SongDuration)}")
-    print(f"Song Total Duration(s): {song.SongDuration}")
-    print()
+    # # Getters
+    # print(f"Song Title Name             {song.getSongName()}")
+    # print(f"Song Artist Name:           {song.getSongArtist()}")
+    # print(f"Song Album Name:            {song.getSongAlbum()}")
+    # print(f"Song Album Artist Name:     {song.getSongAlbumArtist()}")
+    # print(f"Song Original Artist Name:  {song.getSongOriginalArtist()}")
+    # print(f"Song Artist URL:            {song.getSongArtistURL()}")
+    # print(f"Song Play Count:            {song.getSongPlayCount()}")
+    # print(f"Song BPM:                   {song.getSongBPM()}")
+    # print(f"Song Total Duration:        {song.duration_from_seconds(song.getSongDuration())}")
+    # print(f"Song Total Duration(s):     {song.getSongDuration()}")
+    # print()
 
     # # Setters
-    # song.setSongTitle("Angels (Explicit)")
-    # song.setSongArtist("Tom MacDonald")
-    # song.setSongAlbum("No Guts No Glory")
-    # song.setSongPlayCount(393)
-    # song.setSongBPM(393)
+    song.setSongTitle("Chop Suey!")
+    song.setSongArtist("System Of A Down")
+    song.setSongAlbum("Steal This Album!")
+    song.setSongPlayCount(393)
+    song.setSongBPM(393)
+    song.exportJSON()
 
     # Check the changes
     print(f"Song Title Name         {song.getSongName()}")
@@ -548,44 +630,44 @@ if __name__ == '__main__':
     print(f"Song Album Name:        {song.getSongAlbum()}")
     print(f"Song Play Count:        {song.getSongPlayCount()}")
     print(f"Song BPM:               {song.getSongBPM()}")
-    print(f"Song Total Duration:    {song.duration_from_seconds(song.SongDuration)}")
-    print(f"Song Total Duration(s): {song.SongDuration}")
+    print(f"Song Total Duration:    {song.duration_from_seconds(song.getSongDuration())}")
+    print(f"Song Total Duration(s): {song.getSongDuration()}")
 
-    print()
-    print("Second Song Modification")
-    print()
-    filename2 = '/Users/jayrizzo/Documents/git/MP3Player/Music/8 Bit Superhero.mp3'
-    song2 = MP3TagYourSong(filename2)
-    song2.deleteAllTags()  # TUrning this on will clear all headers and you must recreate them manually.  THERE IS NO UNDO!!!!
+    # print()
+    # print("Second Song Modification")
+    # print()
+    # filename2 = '/Users/jayrizzo/Documents/git/MP3Player/Music/8 Bit Superhero.mp3'
+    # song2 = MP3TagYourSong(filename2)
+    # song2.deleteAllTags()  # TUrning this on will clear all headers and you must recreate them manually.  THERE IS NO UNDO!!!!
 
-    # Checkers
-    song2.CreateMissingTag()
-    song2.CheckID3Tag()
-    song2.convertID3Tags2to3()
+    # # Checkers
+    # song2.CreateMissingTag()
+    # song2.CheckID3Tag()
+    # song2.convertID3Tags2to3()
 
-    # Getters
-    print(f"Song Title Name         {song2.getSongName()}")
-    print(f"Song Artist Name:       {song2.getSongArtist()}")
-    print(f"Song Album Name:        {song2.getSongAlbum()}")
-    print(f"Song Play Count:        {song2.getSongPlayCount()}")
-    print(f"Song BPM:               {song2.getSongBPM()}")
-    print(f"Song Total Duration:    {song2.duration_from_seconds(song2.SongDuration)}")
-    print(f"Song Total Duration(s): {song2.SongDuration}")
-    print()
+    # # Getters
+    # print(f"Song Title Name         {song2.getSongName()}")
+    # print(f"Song Artist Name:       {song2.getSongArtist()}")
+    # print(f"Song Album Name:        {song2.getSongAlbum()}")
+    # print(f"Song Play Count:        {song2.getSongPlayCount()}")
+    # print(f"Song BPM:               {song2.getSongBPM()}")
+    # print(f"Song Total Duration:    {song2.duration_from_seconds(song2.SongDuration)}")
+    # print(f"Song Total Duration(s): {song2.SongDuration}")
+    # print()
 
-    # Setters
-    song2.setSongTitle("Bad Girls Club")
-    song2.setSongArtist("Falling In Reverse")
-    song2.setSongAlbum("Fashionably Late (Deluxe Edition)")
-    song2.setSongPlayCount(393)
-    song2.setSongBPM(393)
+    # # Setters
+    # song2.setSongTitle("Bad Girls Club")
+    # song2.setSongArtist("Falling In Reverse")
+    # song2.setSongAlbum("Fashionably Late (Deluxe Edition)")
+    # song2.setSongPlayCount(393)
+    # song2.setSongBPM(393)
 
-    # Check Second Song Loading the Song captures the initial Song Info
-    print(f"Song Title Name         {song2.getSongName()}")
-    print(f"Song Artist Name:       {song2.getSongArtist()}")
-    print(f"Song Album Name:        {song2.getSongAlbum()}")
-    print(f"Song Play Count:        {song2.getSongPlayCount()}")
-    print(f"Song BPM:               {song2.getSongBPM()}")
-    print(f"Song Total Duration:    {song2.duration_from_seconds(song2.SongDuration)}")
-    print(f"Song Total Duration(s): {song2.SongDuration}")
-    print()
+    # # Check Second Song Loading the Song captures the initial Song Info
+    # print(f"Song Title Name         {song2.getSongName()}")
+    # print(f"Song Artist Name:       {song2.getSongArtist()}")
+    # print(f"Song Album Name:        {song2.getSongAlbum()}")
+    # print(f"Song Play Count:        {song2.getSongPlayCount()}")
+    # print(f"Song BPM:               {song2.getSongBPM()}")
+    # print(f"Song Total Duration:    {song2.duration_from_seconds(song2.SongDuration)}")
+    # print(f"Song Total Duration(s): {song2.SongDuration}")
+    # print()
